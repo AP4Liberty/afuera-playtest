@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
-const BUILD='0.9.0-playtest.59';
+const BUILD='0.9.0-playtest.60';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
@@ -30,7 +30,7 @@ const universityBackground=load('assets/university.jpg');
 const kremlinBackground=load('assets/kremlin.jpg');
 const freshStats=()=>({damageTaken:0,perfectDodges:0,maxMultiplier:1,maxCombo:0,enemiesDefeated:0,pesosCollected:0,pesosLost:0,soundMoneyPickups:0,hazardsDestroyed:0,objectivesCompleted:0,objectivesOffered:0});
 const freshPerf=()=>({fps:60,frames:0,sampleTime:0,worstMs:0,droppedFrames:0,lowPower:false,slowSamples:0,fastSamples:0});
-const state = { running:false,paused:false,muted:false,runId:0,level:1,time:0,hitStop:0,camera:0, wave:0, wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipTime:0, scene:0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,score:0,multiplier:1, pesos:0, meter:0, shake:0, banner:'CALLE CORRIENTES', bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[], pickups:[], particles:[], projectiles:[],popups:[],props:[],hazards:[],stats:freshStats(),perf:freshPerf(), boss:false, victory:false };
+const state = { running:false,paused:false,muted:false,runId:0,level:1,time:0,hitStop:0,camera:0, wave:0, wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipTime:0, scene:0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,score:0,multiplier:1, pesos:0, meter:0, shake:0, banner:'CALLE CORRIENTES', bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],defeats:[],pickups:[], particles:[], projectiles:[],popups:[],props:[],hazards:[],stats:freshStats(),perf:freshPerf(), boss:false, victory:false };
 const profile = loadProfile();
 profile.unlockedScenes=Array.isArray(profile.unlockedScenes)?profile.unlockedScenes:[];
 profile.honors=Array.isArray(profile.honors)?profile.honors:[];
@@ -229,6 +229,7 @@ function showTip(key,text){if(seenTips.has(key))return;seenTips.add(key);state.t
 
 function reset(level=state.level,resume=null){
   state.runId++;
+  state.defeats=[];
   const levelNames={1:'CALLE CORRIENTES · 1951',2:'MINISTRY OF BUREAUCRACY · 1935',3:'UNIVERSITY OF MARX · 1968',4:'KREMLIN REACTOR · 1952'};Object.assign(state,{running:true,paused:false,level,time:resume?.time||0,hitStop:0,camera:0,wave:resume?.wave||0,wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipTime:0,scene:resume?.scene||0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,score:resume?.score||0,multiplier:1,pesos:resume?.pesos||0,meter:0,shake:0,banner:resume?'CHECKPOINT':levelNames[level],bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],pickups:[],particles:[],projectiles:[],popups:[],props:[],hazards:[],stats:resume?(resume.stats||state.stats):freshStats(),perf:freshPerf(),resultsShown:false,boss:false,victory:false});
   state.stats.objectivesCompleted=Number(state.stats.objectivesCompleted)||0;state.stats.objectivesOffered=Number(state.stats.objectivesOffered)||0;
   state.stats.pesosLost=Number(state.stats.pesosLost)||0;state.stats.soundMoneyPickups=Number(state.stats.soundMoneyPickups)||0;
@@ -354,7 +355,7 @@ function special(){
 function dodge(){if(hero.timer>0){hero.dodgeBuffer=.2;return}hero.dodgeBuffer=0;hero.attackBuffer=null;hero.state='dodge';hero.timer=.32;hero.invuln=.42+profile.dodge*(2/60);hero.dodgeWindow=.15+profile.dodge*(1/60);hero.vx=hero.face*360}
 function perfectDodge(x=hero.x,y=hero.y-35){if(hero.dodgeWindow<=0)return false;hero.dodgeWindow=0;state.multiplier=clamp(state.multiplier+.5,1,4);state.stats.perfectDodges++;state.stats.maxMultiplier=Math.max(state.stats.maxMultiplier,state.multiplier);state.meter=clamp(state.meter+14*(1+profile.meter*.1),0,100);state.score+=Math.round(750*state.multiplier);state.hitStop=.075;state.shake=4;popup(hero.x,hero.y-110,`PERFECT DODGE · ×${state.multiplier.toFixed(1)}`,'#73c8e8');burst(x,y,'#73c8e8',16);tone(880,.16,'square',.045);rumble(.3,45);return true}
 function breakMultiplier(){if(state.multiplier>1)popup(hero.x,hero.y-115,'MULTIPLIER LOST','#ff6b68');state.multiplier=1;hero.hits=0;hero.comboTime=0}
-function callBossMove(name){state.bossMove=name;state.bossMoveTime=1.15;tone(210,.07,'square',.025)}
+function callBossMove(name){state.bossMove=name;state.bossMoveTime=1.35;state.shake=Math.max(state.shake,2.5);tone(210,.07,'square',.025);setTimeout(()=>tone(315,.045,'square',.014),65)}
 
 function update(dt){
   if(!state.running||state.paused) return;
@@ -386,9 +387,10 @@ function update(dt){
   if(padOnce(1))dodge();
   if(padOnce(3)||padOnce(5))special();
   updateEnemies(dt); updatePickups(dt); updateParticles(dt);updateProjectiles(dt);updatePopups(dt);updateProps(dt);updateHazards(dt);
+  state.defeats.forEach(defeat=>defeat.life-=dt);state.defeats=state.defeats.filter(defeat=>defeat.life>0);
   state.enemies=state.enemies.filter(e=>{
     if(e.hp>0) return true;
-    state.stats.enemiesDefeated=(state.stats.enemiesDefeated||0)+1;dropPeso(e);burst(e.x,e.y-45,'#ffd15a',TYPES[e.type].boss?34:e.elite?24:16);popup(e.x,e.y-105,TYPES[e.type].boss?'BOSS DOWN':e.elite?'ELITE AFUERA':'AFUERA','#ffd15a');state.shake=TYPES[e.type].boss?14:e.elite?9:6;state.score+=Math.round((TYPES[e.type].boss?5000:e.elite?1250:500)*state.multiplier); return false;
+    const bossDown=TYPES[e.type].boss;state.defeats.push({...e,life:bossDown?.8:.48,maxLife:bossDown?.8:.48});state.stats.enemiesDefeated=(state.stats.enemiesDefeated||0)+1;dropPeso(e);burst(e.x,e.y-45,'#ffd15a',bossDown?34:e.elite?24:16);popup(e.x,e.y-105,bossDown?'BOSS DOWN':e.elite?'ELITE AFUERA':'AFUERA','#ffd15a');state.shake=bossDown?14:e.elite?9:6;if(bossDown){state.hitStop=.12;rumble(1,180);tone(48,.55,'sawtooth',.065)}else tone(e.elite?72:96,.13,'square',.025);state.score+=Math.round((bossDown?5000:e.elite?1250:500)*state.multiplier); return false;
   });
   if(state.wavePending){state.waveDelay-=dt;if(state.waveDelay<=0){if(!state.enemies.length)spawnWave();else state.wavePending=false}}
   else if(!state.enemies.length&&!state.victory){state.wavePending=true;state.waveDelay=1.5;awardWave()}
@@ -417,7 +419,7 @@ function updateEnemies(dt){
   for(const e of state.enemies){
     const t=TYPES[e.type]; e.timer-=dt;e.hit-=dt;e.attackCd-=dt;e.summonCd-=dt;e.flee=Math.max(0,(e.flee||0)-dt);e.entrance=Math.max(0,(e.entrance||0)-dt);e.face=e.x>hero.x?-1:1;
     if(e.entrance>0){e.state='walk';e.walkPhase+=dt*9;continue}
-    if(t.boss){const next=e.hp/e.maxHp<=.33?3:e.hp/e.maxHp<=.66?2:1;if(next>e.phase){e.phase=next;e.attackCd=0;state.phaseFlash=.8;state.shake=16;rumble(.9,150);state.banner=`${e.type==='gremialista'?'GREMIALISTA':e.type.toUpperCase()} · PHASE ${next}`;state.bannerTime=1.4;state.bossQuote=BOSS_PHASE_LINES[e.type]?.[next-2]||'';state.bossQuoteTime=2.5;burst(e.x,e.y-55,next===3?'#c62f37':'#e0ad3b',34);tone(82,.35,'sawtooth',.06);if(e.type==='super_stalin'&&next===3)playCutscene('marx')}}
+    if(t.boss){const next=e.hp/e.maxHp<=.33?3:e.hp/e.maxHp<=.66?2:1;if(next>e.phase){e.phase=next;e.attackCd=0;state.hitStop=.09;state.phaseFlash=.8;state.shake=16;rumble(.9,150);state.banner=`${e.type==='gremialista'?'GREMIALISTA':e.type.toUpperCase()} · PHASE ${next}`;state.bannerTime=1.4;state.bossQuote=BOSS_PHASE_LINES[e.type]?.[next-2]||'';state.bossQuoteTime=2.5;burst(e.x,e.y-55,next===3?'#c62f37':'#e0ad3b',34);tone(82,.35,'sawtooth',.06);if(e.type==='super_stalin'&&next===3)playCutscene('marx')}}
     if(e.hit>0) continue;
     // Hold the attack pose through its recovery window. This keeps strikes readable,
     // prevents enemies from gliding immediately after contact, and creates a fair punish beat.
@@ -491,7 +493,7 @@ const showMissionCard=showIntro;showIntro=function(level=1){if(level===1&&!seenS
 
 function draw(){
   ctx.save(); const shake=profile.screenShake?state.shake:0,sx=shake?(Math.random()-.5)*shake:0, sy=shake?(Math.random()-.5)*shake:0;ctx.translate(sx,sy);
-  drawWorld(); drawEntities(); drawFx(); ctx.restore(); drawHud();
+  drawWorld();drawDefeats();drawEntities();drawFx();ctx.restore();drawHud();
   requestAnimationFrame(frame);
 }
 function drawWorld(){
@@ -503,6 +505,7 @@ function drawWorld(){
 }
 function drawAmbient(){if(profile.reducedMotion)return;ctx.save();for(let i=0;i<14;i++){const seed=i*97.3,drift=(state.time*(state.level===4?75:22)+seed)%(W+100)-50,y=95+((seed*3.7+state.time*(10+i%3*4))%(H-150));if(state.level===1){ctx.globalAlpha=.16;ctx.fillStyle='#e0ad3b';ctx.fillRect(drift,y,3,3)}else if(state.level===2){ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#f1e2bd';ctx.translate(drift,y);ctx.rotate(Math.sin(state.time+i)*.4);ctx.fillRect(-5,-3,10,6);ctx.restore()}else if(state.level===3){ctx.save();ctx.globalAlpha=.2;ctx.fillStyle=i%2?'#c62f37':'#f1e2bd';ctx.translate(drift,y);ctx.rotate(state.time*.3+i);ctx.fillRect(-6,-4,12,8);ctx.restore()}else{ctx.globalAlpha=.28;ctx.strokeStyle='#73c8e8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(drift,y);ctx.lineTo(drift-7,y+10);ctx.stroke()}}ctx.restore();ctx.globalAlpha=1}
 function drawHazard(h){const {active,warning}=hazardState(h),pulse=.5+Math.sin(state.time*8+h.x)*.18;ctx.save();ctx.translate(h.x,h.y);ctx.globalAlpha=active?.8:warning?.95:pulse;if(h.type==='redtape'){ctx.fillStyle='#c62f3766';ctx.strokeStyle='#f1e2bd';ctx.lineWidth=3;ctx.rotate(-.08);for(let y=-38;y<=38;y+=18){ctx.fillRect(-h.r,y,h.r*2,10);ctx.strokeRect(-h.r,y,h.r*2,10)}ctx.fillStyle='#f1e2bd';ctx.font='bold 10px Arial';ctx.textAlign='center';ctx.fillText('FORM 27-B',0,4)}else if(h.type==='pamphlets'){ctx.strokeStyle=active?'#c62f37':warning?'#ffd15a':'#e0ad3b';ctx.lineWidth=warning?7:4;ctx.beginPath();ctx.arc(0,0,h.r,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#f1e2bd';for(let i=0;i<7;i++){ctx.save();ctx.rotate(i*.9+state.time*.15);ctx.fillRect(18+i*5,-4,20,8);ctx.restore()}}else{ctx.fillStyle='#07172d';ctx.strokeStyle=active?'#73c8e8':warning?'#ffd15a':'#e0ad3b';ctx.lineWidth=warning?8:5;ctx.beginPath();ctx.ellipse(0,0,h.r,22,0,0,Math.PI*2);ctx.fill();ctx.stroke();if(active){ctx.strokeStyle='#73c8e8';ctx.lineWidth=6;for(let i=-35;i<=35;i+=23){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+10,-38);ctx.lineTo(i-4,-65);ctx.stroke()}}else{ctx.fillStyle=warning?'#ffd15a':'#e0ad3b';ctx.font=`bold ${warning?18:12}px Arial`;ctx.textAlign='center';ctx.fillText(warning?'!':'VENT',0,4)}}ctx.restore();ctx.globalAlpha=1}
+function drawDefeats(){for(const defeat of state.defeats){const progress=1-defeat.life/defeat.maxLife,name=defeat.type==='super_stalin'?(defeat.phase===3?'stalin_mecha':defeat.phase===2?'stalin_exo':'stalin_form1'):defeat.type==='che_bike'?'che_bike_idle':defeat.type,im=images[name],scale=TYPES[defeat.type].scale*(.9+defeat.y/floorBottom()*.1);ctx.save();ctx.globalAlpha=clamp(defeat.life/defeat.maxLife,0,1);ctx.translate(defeat.x+(defeat.face||1)*progress*42,defeat.y-progress*34);ctx.rotate((defeat.face||1)*progress*.72);ctx.scale((defeat.face||1)*scale*(1+progress*.12),scale*(1-progress*.18));if(im?.complete)ctx.drawImage(im,-im.width/2,-im.height,im.width,im.height);ctx.restore()}}
 function drawEntities(){
   const all=[...state.pickups.map(p=>({...p,kind:'pickup'})),...state.props.map(p=>({...p,kind:'prop'})),...state.enemies.map(e=>({...e,kind:'enemy'})),{...hero,kind:'hero'}].sort((a,b)=>a.y-b.y);
   for(const o of all){if(o.kind==='pickup')(o.power?drawPowerup(o):drawPeso(o));else if(o.kind==='prop')drawProp(o);else drawFighter(o,o.kind==='hero');}
