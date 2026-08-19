@@ -1,0 +1,5 @@
+.mission-stats{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:10px;width:min(720px,92vw);margin:24px auto}
+.mission-stats span{display:flex;flex-direction:column;gap:5px;padding:14px 10px;border:2px solid #e0ad3b;background:#07172dcc;color:#f1e2bd;font:700 12px Arial,sans-serif;letter-spacing:.08em}
+.mission-stats strong{color:#73c8e8;font:clamp(1.25rem,3vw,2rem) Impact,sans-serif;letter-spacing:.02em}
+@media(max-width:620px){.mission-stats{grid-template-columns:repeat(2,minmax(110px,1fr));gap:6px;margin:12px auto}.mission-stats span{padding:8px 6px;font-size:10px}.mission-stats strong{font-size:1.25rem}.mission-stats span:last-child{grid-column:span 2}}
+#bossPracticeButton{margin:0 0 8px}#bossPracticeButton.selected{background:#e0ad3b;color:#07172d;box-shadow:4px 4px #c62f37}

@@ -1,0 +1,24 @@
+#start{padding:2.5% 6%}
+#start h1{font-size:clamp(3.25rem,12vh,6.5rem);line-height:.78;margin:.1em 0 0}
+#start h2{margin:.35em 0 .5em}
+#start>p:not(.eyebrow){margin:.25em 0 .45em}
+.menu-tools{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}
+.menu-tools .secondary{margin-top:7px}
+#dailyButton[hidden]{display:none}
+.cinema{max-height:100%}
+.cinema img{max-height:300px}
+@media(pointer:coarse),(max-width:800px){
+  #start h1{font-size:clamp(2.5rem,11vh,4.5rem)}
+  #start h2{font-size:clamp(.8rem,3vh,1.4rem)}
+  #start>p:not(.eyebrow){font-size:clamp(.65rem,2.2vh,1rem)}
+  .menu-tools .secondary{margin-top:3px}
+}
+@media(max-width:700px){
+  #message.panel{padding:2% 6%}
+  .cinema{grid-template-columns:1fr;gap:4px;text-align:center}
+  .cinema img{max-height:180px}
+  .cinema-copy h1{font-size:clamp(1.35rem,6vw,2.25rem)!important;margin:.08em 0}
+  .cinema-copy p{font-size:clamp(.72rem,2.7vw,1rem);margin:.2em}
+  .cinema-copy>div{justify-content:center}
+  .cinema-copy button{padding:.4em .8em}
+}

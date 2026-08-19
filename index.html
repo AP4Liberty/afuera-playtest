@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#07172d">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>¡AFUERA! — Chainsaw of Liberty</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="shop.css">
+  <link rel="stylesheet" href="level-select.css?v=3">
+  <link rel="stylesheet" href="mission-results.css">
+  <link rel="stylesheet" href="hall.css">
+  <link rel="stylesheet" href="mobile-polish.css">
+  <link rel="stylesheet" href="layout-fixes.css?v=2">
+</head>
+<body>
+  <main id="shell">
+    <canvas id="game" width="960" height="540" aria-label="¡AFUERA! game"></canvas>
+    <div id="systemControls"><button id="pauseButton" aria-label="Pause game">Ⅱ</button><button id="muteButton" aria-label="Mute audio">♪</button><button id="fullscreenButton" aria-label="Toggle fullscreen">⛶</button><button id="updateButton" aria-label="Apply game update" hidden>NEW</button></div>
+    <div id="orientationHint">ROTATE TO LANDSCAPE FOR FULL-SIZE COMBAT</div>
+    <section id="start" class="panel">
+      <p class="eyebrow">FREEDOM ARCADE PRESENTS</p>
+      <h1>¡AFUERA!</h1>
+      <h2>CHAINSAW OF LIBERTY</h2>
+      <p>Buenos Aires, 1951. The state has paperwork. You have a chainsaw.</p>
+      <div id="levelSelect" aria-label="Level select"></div>
+      <div id="difficultySelect" aria-label="Difficulty select"></div>
+      <button id="bossPracticeButton" class="secondary" hidden>BOSS PRACTICE: OFF</button>
+      <button id="startButton" disabled>LOADING GAME</button>
+      <button id="dailyButton" class="secondary" hidden>DAILY CHALLENGE</button>
+      <button id="continueButton" class="secondary" hidden>RESUME CAMPAIGN</button>
+      <div class="menu-tools">
+        <button id="hallButton" class="secondary">HALL OF LIBERTY</button>
+        <button id="archivesButton" class="secondary" hidden>STORY ARCHIVES</button>
+        <button id="optionsButton" class="secondary">OPTIONS</button>
+        <button id="installButton" class="secondary" hidden>INSTALL GAME</button>
+      </div>
+      <span id="networkStatus" aria-live="polite"></span>
+      <small>Keyboard: WASD / Arrows · J Saw · K Heavy · Space Dodge · L Special · P Pause · Controller supported</small>
+    </section>
+    <section id="message" class="panel hidden"></section>
+    <section id="pauseMenu" class="panel hidden" aria-label="Pause menu">
+      <p class="eyebrow">GAME PAUSED</p>
+      <h1>HOLD THE LINE</h1>
+      <p id="pauseStatus"></p>
+      <div class="pause-actions">
+        <button id="resumeButton" data-resume>RESUME</button>
+        <button id="restartButton" data-restart class="secondary">RESTART LEVEL</button>
+        <button id="reportButton" data-report class="secondary" hidden>COPY TEST REPORT</button>
+        <button id="skipEncounterButton" data-skip-encounter class="secondary" hidden>CLEAR ENCOUNTER</button>
+        <button id="campaignButton" data-campaign class="secondary">CAMPAIGN MENU</button>
+      </div>
+      <small class="pause-help">MOVE: WASD / ARROWS · SAW: J · HEAVY: K · DODGE: SPACE · SPECIAL: L</small>
+    </section>
+    <div id="touch" aria-label="Touch controls">
+      <div class="dpad">
+        <button data-key="ArrowUp" aria-label="Move up">▲</button><span></span>
+        <button data-key="ArrowLeft" aria-label="Move left">◀</button><button data-key="ArrowDown" aria-label="Move down">▼</button><button data-key="ArrowRight" aria-label="Move right">▶</button>
+      </div>
+      <div class="actions">
+        <button data-key="KeyL" aria-label="Use Afuera special">Afuera</button><button data-key="Space" aria-label="Dodge">Dodge</button>
+        <button data-key="KeyK" aria-label="Heavy chainsaw attack">Heavy</button><button data-key="KeyJ" aria-label="Chainsaw attack" class="primary">Saw</button>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="game.js?v=46"></script>
+</body>
+</html>
