@@ -1,9 +1,10 @@
 const canvas = document.querySelector('#game');
 const ctx = canvas.getContext('2d');
+const specialButton=document.querySelector('[data-key="KeyL"]');
 ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
-const BUILD='0.9.0-playtest.66';
+const BUILD='0.9.0-playtest.67';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
@@ -31,7 +32,7 @@ const kremlinBackground=load('assets/kremlin.jpg');
 const transmissionImages={RAND:load('assets/cs-rand.jpg'),DOG:load('assets/cs-dogs-reactor-v2.jpg')};
 const freshStats=()=>({damageTaken:0,perfectDodges:0,maxMultiplier:1,maxCombo:0,enemiesDefeated:0,pesosCollected:0,pesosLost:0,soundMoneyPickups:0,hazardsDestroyed:0,objectivesCompleted:0,objectivesOffered:0});
 const freshPerf=()=>({fps:60,frames:0,sampleTime:0,worstMs:0,droppedFrames:0,lowPower:false,slowSamples:0,fastSamples:0});
-const state = { running:false,paused:false,muted:false,runId:0,level:1,time:0,hitStop:0,camera:0,finishFlash:0, wave:0, wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0, scene:0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,score:0,multiplier:1, pesos:0, meter:0, shake:0, banner:'CALLE CORRIENTES', bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],defeats:[],pickups:[], particles:[], projectiles:[],popups:[],props:[],hazards:[],stats:freshStats(),perf:freshPerf(), boss:false, victory:false };
+const state = { running:false,paused:false,muted:false,runId:0,level:1,time:0,hitStop:0,camera:0,finishFlash:0, wave:0, wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0, scene:0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,score:0,multiplier:1, pesos:0, meter:0,meterReady:false, shake:0, banner:'CALLE CORRIENTES', bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],defeats:[],pickups:[], particles:[], projectiles:[],popups:[],props:[],hazards:[],stats:freshStats(),perf:freshPerf(), boss:false, victory:false };
 const profile = loadProfile();
 profile.unlockedScenes=Array.isArray(profile.unlockedScenes)?profile.unlockedScenes:[];
 profile.honors=Array.isArray(profile.honors)?profile.honors:[];
@@ -231,12 +232,13 @@ function showTip(key,text){if(seenTips.has(key))return;seenTips.add(key);const m
 function reset(level=state.level,resume=null){
   state.runId++;
   state.defeats=[];
-  const levelNames={1:'CALLE CORRIENTES · 1951',2:'MINISTRY OF BUREAUCRACY · 1935',3:'UNIVERSITY OF MARX · 1968',4:'KREMLIN REACTOR · 1952'};Object.assign(state,{running:true,paused:false,level,time:resume?.time||0,hitStop:0,camera:0,finishFlash:0,wave:resume?.wave||0,wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0,scene:resume?.scene||0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,score:resume?.score||0,multiplier:1,pesos:resume?.pesos||0,meter:0,shake:0,banner:resume?'CHECKPOINT':levelNames[level],bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],pickups:[],particles:[],projectiles:[],popups:[],props:[],hazards:[],stats:resume?(resume.stats||state.stats):freshStats(),perf:freshPerf(),resultsShown:false,boss:false,victory:false});
+  const levelNames={1:'CALLE CORRIENTES · 1951',2:'MINISTRY OF BUREAUCRACY · 1935',3:'UNIVERSITY OF MARX · 1968',4:'KREMLIN REACTOR · 1952'};Object.assign(state,{running:true,paused:false,level,time:resume?.time||0,hitStop:0,camera:0,finishFlash:0,wave:resume?.wave||0,wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0,scene:resume?.scene||0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,score:resume?.score||0,multiplier:1,pesos:resume?.pesos||0,meter:0,meterReady:false,shake:0,banner:resume?'CHECKPOINT':levelNames[level],bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],pickups:[],particles:[],projectiles:[],popups:[],props:[],hazards:[],stats:resume?(resume.stats||state.stats):freshStats(),perf:freshPerf(),resultsShown:false,boss:false,victory:false});
   state.stats.objectivesCompleted=Number(state.stats.objectivesCompleted)||0;state.stats.objectivesOffered=Number(state.stats.objectivesOffered)||0;
   state.stats.pesosLost=Number(state.stats.pesosLost)||0;state.stats.soundMoneyPickups=Number(state.stats.soundMoneyPickups)||0;
   state.stats.hazardsDestroyed=Number(state.stats.hazardsDestroyed)||0;
   if(dailyChallenge)state.stats.dailyDay=dailyNumber;
   document.querySelector('#pauseButton').textContent='Ⅱ';
+  specialButton?.classList.remove('ready');if(specialButton)specialButton.textContent='Afuera';
   const maxHp=100+profile.health*10;Object.assign(hero,{x:180,y:floorBottom()-22,vx:0,vy:0,walkPhase:0,hp:maxHp,maxHp,face:1,state:'idle',timer:0,hit:0,invuln:0,dodgeWindow:0,combo:0,hits:0,comboTime:0,stepCd:0,goldTimer:0,handTimer:0,attackBuffer:null,attackHit:null,dodgeBuffer:0});state.stats.lastHp=maxHp;
   spawnWave();
 }
@@ -333,10 +335,10 @@ function resolvePlayerHit({heavy,finisher,runId}){
       if(ahead&&Math.abs(e.x-hero.x)<(heavy?112:86)&&Math.abs(e.y-hero.y)<52){
         const t=TYPES[e.type];
         let damage=(heavy?30:14+hero.combo*2+(finisher?7:0))*(1+profile.damage*.08)*(hero.goldTimer>0?2:1)*(heavy&&profile.heavy>=1?1.2:1);
-        if(t.block&&!heavy&&e.face===-hero.face){damage=3;popup(e.x,e.y-112,'BLOCKED','#73c8e8');state.hitStop=.055;tone(150,.08,'square',.035)}
-        e.hp-=damage; e.hit=finisher?.3:.18; e.x+=hero.face*(heavy?55:finisher?48:22);struck.add(e); connected=true;hero.hits++;state.waveMaxCombo=Math.max(state.waveMaxCombo,hero.hits);state.stats.maxCombo=Math.max(state.stats.maxCombo||0,hero.hits);hero.comboTime=1.15;state.hitStop=heavy?.075:finisher?.065:.038;popup(e.x,e.y-90,finisher?'COMBO FINISH':Math.round(damage),heavy||finisher?'#ffd15a':'#f1e2bd');if(heavy||finisher)rumble(heavy?.45:.28,heavy?55:38);
+        if(t.block&&!e.armorBroken&&!heavy&&e.face===-hero.face){damage=3;popup(e.x,e.y-112,'BLOCKED','#73c8e8');state.hitStop=.055;tone(150,.08,'square',.035)}else if(t.block&&!e.armorBroken&&heavy){e.armorBroken=true;popup(e.x,e.y-116,'ARMOR SHREDDED','#ffd15a');state.score+=300;burst(e.x,e.y-45,'#73c8e8',15);tone(210,.14,'sawtooth',.05)}
+        e.hp-=damage; e.hit=finisher?.3:.18; e.x+=hero.face*(heavy?55:finisher?48:22);struck.add(e); connected=true;hero.hits++;state.waveMaxCombo=Math.max(state.waveMaxCombo,hero.hits);state.stats.maxCombo=Math.max(state.stats.maxCombo||0,hero.hits);hero.comboTime=1.15;state.hitStop=heavy?.075:finisher?.065:.038;popup(e.x,e.y-90,finisher?'COMBO FINISH':Math.round(damage),heavy||finisher?'#ffd15a':'#f1e2bd');if(heavy||finisher){rumble(heavy?.45:.28,heavy?55:38);tone(finisher?260:105,.1,finisher?'square':'sawtooth',.035)}
         state.multiplier=clamp(Math.max(state.multiplier,1+Math.floor(hero.hits/5)*.5),1,4);state.stats.maxMultiplier=Math.max(state.stats.maxMultiplier,state.multiplier);state.meter=clamp(state.meter+(heavy?11:7)*(1+profile.meter*.1),0,100); state.score+=Math.round(damage*10*state.multiplier);
-        burst(e.x,e.y-40,heavy||finisher?'#ffd15a':'#f5eee0',heavy?12:finisher?10:6);
+        burst(e.x,e.y-40,heavy||finisher?'#ffd15a':'#f5eee0',heavy?12:finisher?10:6);if(finisher)for(let i=0;i<14;i++){const angle=i/14*Math.PI*2;state.particles.push({x:e.x,y:e.y-38,vx:Math.cos(angle)*190,vy:Math.sin(angle)*95,life:.32,maxLife:.32,size:5,spin:0,angle,color:'#ffd15a',streak:true})}
       }
     }
     if(heavy&&profile.heavy>=2){const shock=12*(1+profile.damage*.08);for(const e of state.enemies){if(struck.has(e)||dist(e,hero)>155)continue;e.hp-=shock;e.hit=.14;e.x+=(e.x>hero.x?1:-1)*28;popup(e.x,e.y-85,Math.round(shock),'#73c8e8');burst(e.x,e.y-30,'#73c8e8',7);connected=true}state.particles.push(...Array.from({length:22},(_,i)=>({x:hero.x,y:hero.y-12,vx:Math.cos(i/22*Math.PI*2)*250,vy:Math.sin(i/22*Math.PI*2)*90,life:.28,color:'#73c8e8'})))}
@@ -347,9 +349,9 @@ function resolvePlayerHit({heavy,finisher,runId}){
 
 function special(){
   if(state.meter<100||hero.timer>0) return;
-  state.meter=0; hero.state='special'; hero.timer=1; state.shake=18;state.camera=.065; state.banner='¡AFUERA!'; state.bannerTime=1.2;rumble(1,180);
+  const cleared=state.enemies.filter(e=>!TYPES[e.type].boss).length;state.meter=0;state.meterReady=false;specialButton?.classList.remove('ready');if(specialButton)specialButton.textContent='Afuera'; hero.state='special'; hero.timer=1; state.shake=18;state.camera=.065;state.hitStop=.065; state.banner=cleared>1?`¡AFUERA! ×${cleared}`:'¡AFUERA!'; state.bannerTime=1.2;rumble(1,180);
   chainsawSound(true,.75);
-  state.enemies.forEach(e=>{e.hp-=70*(1+profile.damage*.08);e.hit=.6;burst(e.x,e.y-40,'#e0ad3b',18)});tone(110,.65,'sawtooth',.08);
+  state.enemies.forEach(e=>{const boss=TYPES[e.type].boss;e.hp-=boss?70*(1+profile.damage*.08):e.maxHp+1;e.hit=.6;e.x+=(e.x>hero.x?1:-1)*(boss?48:92);burst(e.x,e.y-40,'#e0ad3b',boss?24:18)});for(const projectile of state.projectiles)burst(projectile.x,projectile.y,'#73c8e8',5);state.projectiles=[];tone(110,.65,'sawtooth',.08);setTimeout(()=>tone(220,.3,'square',.045),90);setTimeout(()=>tone(440,.24,'square',.035),180);
   for(const hazard of state.hazards){if(hazard.type==='pamphlets'&&!hazard.dead){hazard.dead=true;state.stats.hazardsDestroyed++;state.score+=750;popup(hazard.x,hazard.y-80,'BROADCAST CANCELED','#ffd15a');burst(hazard.x,hazard.y-20,'#f1e2bd',24)}}
 }
 
@@ -396,6 +398,7 @@ function update(dt){
   });
   if(state.wavePending){state.waveDelay-=dt;if(state.waveDelay<=0){if(!state.enemies.length)spawnWave();else state.wavePending=false}}
   else if(!state.enemies.length&&!state.victory){state.wavePending=true;state.waveDelay=1.5;awardWave()}
+  if(state.meter>=100&&!state.meterReady){state.meterReady=true;specialButton?.classList.add('ready');if(specialButton)specialButton.textContent='¡AFUERA!';state.tip='¡AFUERA! READY · PRESS L / SPECIAL';state.tipSource='';state.tipTime=2.4;tone(440,.12,'square',.035);setTimeout(()=>tone(660,.12,'square',.035),85);setTimeout(()=>tone(880,.18,'square',.035),170);rumble(.25,45)}else if(state.meter<100&&state.meterReady){state.meterReady=false;specialButton?.classList.remove('ready');if(specialButton)specialButton.textContent='Afuera'}
 }
 
 function objectiveForWave(wave){return [
@@ -554,7 +557,7 @@ function drawHud(){
   drawFinishFlash();
   ctx.fillStyle='#07172de8';ctx.fillRect(0,0,W,72);ctx.fillStyle='#f1e2bd';ctx.font='18px Bungee';ctx.fillText('MILEI',22,24);bar(20,34,230,22,hero.hp/hero.maxHp,'#c62f37');
   if(hero.hp/hero.maxHp<.3){ctx.globalAlpha=.35+Math.sin(state.time*8)*.22;ctx.strokeStyle='#ff403f';ctx.lineWidth=5;ctx.strokeRect(14,29,242,32);ctx.fillStyle='#ff6b68';ctx.font='bold 10px Arial';ctx.fillText('DANGER',205,24);ctx.globalAlpha=1}
-  ctx.fillStyle='#f1e2bd';ctx.fillText('LIBERTAD',275,24);bar(274,34,210,22,state.meter/100,state.meter>=100?'#ffd15a':'#73c8e8');
+  ctx.fillStyle=state.meterReady&&Math.sin(state.time*10)>0?'#ffd15a':'#f1e2bd';ctx.fillText(state.meterReady?'LIBERTAD · READY':'LIBERTAD',275,24);bar(274,34,210,22,state.meter/100,state.meter>=100?'#ffd15a':'#73c8e8');if(state.meterReady){ctx.globalAlpha=.3+Math.sin(state.time*12)*.16;ctx.strokeStyle='#ffd15a';ctx.lineWidth=4;ctx.strokeRect(270,30,218,30);ctx.globalAlpha=1}
   ctx.textAlign='right';ctx.fillStyle='#e0ad3b';ctx.font='18px Bungee';ctx.fillText(`PESOS $${Math.floor(state.pesos)}`,W-22,27);ctx.fillStyle='#f1e2bd';ctx.font='bold 17px Chakra Petch';ctx.fillText(`SCORE ${state.score.toString().padStart(7,'0')}`,W-22,54);ctx.textAlign='left';
   const loosePesos=state.pickups.filter(p=>!p.power).reduce((sum,p)=>sum+p.value,0);if(loosePesos>0){ctx.textAlign='right';ctx.fillStyle=state.pickups.some(p=>!p.power&&p.age>10)?'#ff6b68':'#78bd70';ctx.font='bold 9px Arial';ctx.fillText(`LOOSE $${Math.floor(loosePesos)} · VALUE FALLING`,W-22,68);ctx.textAlign='left'}
   if(state.multiplier>1){ctx.fillStyle='#ffd15a';ctx.font='20px Bungee';ctx.fillText(`×${state.multiplier.toFixed(1)}`,500,53)}

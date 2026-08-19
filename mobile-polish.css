@@ -2,9 +2,10 @@
 #touch{opacity:.52;transition:opacity .16s ease;padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
 #touch.active{opacity:.94}
 #touch button{backdrop-filter:blur(2px)}
+#touch [data-key="KeyL"].ready{color:#07172d;background:#ffd15a;border-color:#fff;box-shadow:0 0 0 3px #07172d,0 0 24px #ffd15a;animation:special-ready .55s steps(2) infinite}@keyframes special-ready{50%{filter:brightness(1.45);transform:translateY(-2px)}}
 button:focus-visible{outline:4px solid #73c8e8;outline-offset:4px}
 #shell.compact-controls .dpad{grid-template-columns:repeat(3,42px);gap:3px}#shell.compact-controls .actions{grid-template-columns:repeat(2,52px);gap:3px}#shell.compact-controls .dpad button,#shell.compact-controls .actions button{height:38px;font-size:8px}
 #updateButton{width:48px!important;background:#e0ad3b!important;color:#07172d!important;font-weight:900}
 .pause-help{margin-top:14px!important;color:#73c8e8!important;letter-spacing:.08em}.panel #pauseStatus{font-size:13px;color:#f1e2bd}
 @media (orientation:portrait) and (pointer:coarse){#orientationHint{display:block;position:absolute;top:max(6px,env(safe-area-inset-top));left:50%;translate:-50% 0;z-index:7;width:max-content;max-width:90%;padding:5px 9px;border:1px solid #e0ad3b;background:#07172ddd;color:#f1e2bd;font:700 8px Arial,sans-serif;letter-spacing:.1em}#touch{opacity:.38}}
-@media (prefers-reduced-motion:reduce){#touch{transition:none}}
+@media (prefers-reduced-motion:reduce){#touch{transition:none}#touch [data-key="KeyL"].ready{animation:none}}
