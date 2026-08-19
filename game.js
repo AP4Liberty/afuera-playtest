@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
-const BUILD='0.9.0-playtest.49';
+const BUILD='0.9.0-playtest.50';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
@@ -194,7 +194,8 @@ const BOSS_INTROS={
   che_bike:{name:"CHE GUEVARA'S GHOST",tag:'REVOLUTION FOR SALE',portrait:'che_bike_idle.png',backdrop:'university.jpg',villain:'You cannot kill an idea!',milei:'No. But I can cancel its merchandise.'},
   super_stalin:{name:'SUPER STALIN',tag:'THREE FORMS · NO REFUNDS',portrait:'stalin_form1.png',backdrop:'kremlin.jpg',villain:'History obeys the Five-Year Engine.',milei:'History is about to meet creative destruction.'}
 };
-function playBossEntrance(type){const b=BOSS_INTROS[type];if(!b||seenBossEntrances.has(type))return;seenBossEntrances.add(type);const wasPaused=state.paused,el=document.querySelector('#message');cinematicActive=true;state.paused=true;el.innerHTML=`<div class="boss-intro" style="--boss-bg:url('assets/${b.backdrop}')"><div class="boss-speedlines"></div><img class="boss-portrait" src="assets/${b.portrait}" alt="${b.name}"><div class="boss-copy"><p class="eyebrow">WARNING · TEMPORAL AUTHORITY</p><h1>${b.name}</h1><h2>${b.tag}</h2><p><b>${b.name}:</b> “${b.villain}”</p><p class="dialogue"><b>MILEI:</b> “${b.milei}”</p><button data-fight>FIGHT</button></div></div>`;el.classList.remove('hidden');cinematicSting('threat');el.querySelector('[data-fight]').onclick=()=>{tone(110,.18,'sawtooth',.05);el.classList.add('hidden');cinematicActive=false;state.paused=wasPaused;state.banner=b.name;state.bannerTime=1.4}};
+const BOSS_PHASE_LINES={gremialista:['GENERAL STRIKE!','THIS FIGHT VIOLATES MY CONTRACT!'],evita:['LOUDER! LET HIM HEAR THE PEOPLE!','YOU CANNOT CHAINSAW A LEGEND!'],peron:['A BENEFIT FOR EVERYONE!','PERONISM IS FOREVER!'],mecha_fdr:['DEPLOY THE ALPHABET!','THE EMERGENCY CANNOT END!'],che_bike:['THE REVOLUTION HAS RIGHT OF WAY!','AN IDEA NEVER DIES!'],super_stalin:['THE SECOND PLAN BEGINS!','STEEL REMEMBERS WHAT FLESH FORGETS!']};
+function playBossEntrance(type){const b=BOSS_INTROS[type];if(!b||seenBossEntrances.has(type))return;seenBossEntrances.add(type);const wasPaused=state.paused,el=document.querySelector('#message');cinematicActive=true;state.paused=true;el.innerHTML=`<div class="boss-intro" style="--boss-bg:url('assets/${b.backdrop}')"><div class="boss-speedlines"></div><img class="boss-portrait" src="assets/${b.portrait}" alt="${b.name}"><div class="boss-copy"><p class="eyebrow">WARNING · TEMPORAL AUTHORITY</p><h1>${b.name}</h1><h2>${b.tag}</h2><p><b>${b.name}:</b> “${b.villain}”</p><p class="dialogue"><b>MILEI:</b> “${b.milei}”</p><button data-fight>FIGHT</button></div></div>`;el.classList.remove('hidden');cinematicSting('threat');const fight=el.querySelector('[data-fight]');fight.focus();fight.onclick=()=>{tone(110,.18,'sawtooth',.05);el.classList.add('hidden');cinematicActive=false;state.paused=wasPaused;state.banner=b.name;state.bannerTime=1.4}};
 function showTip(key,text){if(seenTips.has(key))return;seenTips.add(key);state.tip=text;state.tipTime=5}
 
 function reset(level=state.level,resume=null){
@@ -386,7 +387,7 @@ function updateEnemies(dt){
   for(const e of state.enemies){
     const t=TYPES[e.type]; e.timer-=dt;e.hit-=dt;e.attackCd-=dt;e.summonCd-=dt;e.flee=Math.max(0,(e.flee||0)-dt);e.entrance=Math.max(0,(e.entrance||0)-dt);e.face=e.x>hero.x?-1:1;
     if(e.entrance>0){e.state='walk';e.walkPhase+=dt*9;continue}
-    if(t.boss){const next=e.hp/e.maxHp<=.33?3:e.hp/e.maxHp<=.66?2:1;if(next>e.phase){e.phase=next;e.attackCd=0;state.phaseFlash=.8;state.shake=16;rumble(.9,150);state.banner=`${e.type==='gremialista'?'GREMIALISTA':e.type.toUpperCase()} · PHASE ${next}`;state.bannerTime=1.4;burst(e.x,e.y-55,next===3?'#c62f37':'#e0ad3b',34);tone(82,.35,'sawtooth',.06);if(e.type==='super_stalin'&&next===3)playCutscene('marx')}}
+    if(t.boss){const next=e.hp/e.maxHp<=.33?3:e.hp/e.maxHp<=.66?2:1;if(next>e.phase){e.phase=next;e.attackCd=0;state.phaseFlash=.8;state.shake=16;rumble(.9,150);state.banner=`${e.type==='gremialista'?'GREMIALISTA':e.type.toUpperCase()} · PHASE ${next}`;state.bannerTime=1.4;state.bossQuote=BOSS_PHASE_LINES[e.type]?.[next-2]||'';state.bossQuoteTime=2.5;burst(e.x,e.y-55,next===3?'#c62f37':'#e0ad3b',34);tone(82,.35,'sawtooth',.06);if(e.type==='super_stalin'&&next===3)playCutscene('marx')}}
     if(e.hit>0) continue;
     // Hold the attack pose through its recovery window. This keeps strikes readable,
     // prevents enemies from gliding immediately after contact, and creates a fair punish beat.
