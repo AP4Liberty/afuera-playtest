@@ -101,7 +101,7 @@ The current build now records a compact field report after every cleared mission
 
 The Hall of Liberty turns those records into per-level personal bests and six replay honors, including no-damage clears, perfect-dodge mastery, full multiplier, peso recovery, and campaign completion.
 
-Combat-feel polish now includes short attack lunges, buffered follow-up attacks, velocity-matched walk cadence, and grounded footstep particles so rapid inputs connect cleanly without returning to the old gliding motion.
+Combat-feel polish now includes short attack lunges, forgiving buffered follow-up attacks, eight-way directional dodges, three visually distinct saw-chain strikes, velocity-matched walk cadence, and grounded footstep particles so rapid inputs connect cleanly without returning to the old gliding motion.
 
 External review builds can use `?playtest=1` to expose all four levels and Motosierra difficulty immediately, without requiring a reviewer to clear the campaign in sequence.
 
