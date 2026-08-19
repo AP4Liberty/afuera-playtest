@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
-const BUILD='0.9.0-playtest.56';
+const BUILD='0.9.0-playtest.57';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
