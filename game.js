@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
-const BUILD='0.9.0-playtest.51';
+const BUILD='0.9.0-playtest.53';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
@@ -121,25 +121,25 @@ const TYPES = {
 
 const CUTSCENES={
   mission1:[
-    {image:'assets/calle-corrientes-1.jpg',kicker:'BUENOS AIRES · 1951',title:'THE RANSOM TRAIL',speaker:'HOPPE // REMOTE SIGNAL',text:'The first payment moved through Calle Corrientes. The men guarding it think inflation will erase the evidence.',motion:'pan-right',accent:'blue',cue:'signal'},
-    {image:'assets/calle-corrientes-2.jpg',overlay:'assets/milei_attack.png',kicker:'STREET LEVEL · PESOS FALLING',title:'FOLLOW THE MONEY',speaker:'MILEI',text:'Then I collect the evidence before it loses value.',motion:'snap',accent:'red',cue:'saw'}
+    {image:'assets/calle-corrientes-1.jpg',kicker:'BUENOS AIRES · 1951',title:'THE RANSOM TRAIL',speaker:'HOPPE // REMOTE SIGNAL',text:'The first payment moved through Calle Corrientes. The men guarding it think inflation will erase the evidence.',motion:'pan-right',shot:'wide',focus:'42% 50%',accent:'blue',cue:'signal'},
+    {image:'assets/calle-corrientes-2.jpg',overlay:'assets/milei_attack.png',kicker:'STREET LEVEL · PESOS FALLING',title:'FOLLOW THE MONEY',speaker:'MILEI',text:'Then I collect the evidence before it loses value.',motion:'snap',shot:'close',focus:'68% 48%',accent:'red',cue:'saw'}
   ],
   mission2:[
-    {image:'assets/ministry.jpg',kicker:'WASHINGTON · 1935',title:'THE BUILDING GREW OVERNIGHT',speaker:'HOPPE // REMOTE SIGNAL',text:'The Ministry has spent ninety years adding floors to an emergency that never ended.',motion:'drop',accent:'blue',cue:'signal'},
-    {image:'assets/ministry.jpg',overlay:'assets/milei_heavy.png',kicker:'LOBBY · AGENCY COUNT RISING',title:'CANCEL THE EMERGENCY',speaker:'MILEI',text:'Start at the lobby. End with the machine on the roof.',motion:'push',accent:'red',cue:'saw'}
+    {image:'assets/ministry.jpg',kicker:'WASHINGTON · 1935',title:'THE BUILDING GREW OVERNIGHT',speaker:'HOPPE // REMOTE SIGNAL',text:'The Ministry has spent ninety years adding floors to an emergency that never ended.',motion:'drop',shot:'wide',focus:'50% 35%',accent:'blue',cue:'signal'},
+    {image:'assets/ministry.jpg',overlay:'assets/milei_heavy.png',kicker:'LOBBY · AGENCY COUNT RISING',title:'CANCEL THE EMERGENCY',speaker:'MILEI',text:'Start at the lobby. End with the machine on the roof.',motion:'push',shot:'close',focus:'74% 56%',accent:'red',cue:'saw'}
   ],
   mission3:[
-    {image:'assets/university.jpg',kicker:'PARIS · 1968',title:'THE CAMPUS STOLE THE EXIT',speaker:'HOPPE // REMOTE SIGNAL',text:'Professors command the crowd. Che’s ghost holds the only route to Moscow.',motion:'pan-left',accent:'blue',cue:'signal'},
-    {image:'assets/university.jpg',overlay:'assets/milei_attack.png',kicker:'OCCUPIED QUAD · LECTURE IN PROGRESS',title:'CLASS DISMISSED',speaker:'MILEI',text:'I have one question. Where are my dogs?',motion:'snap',accent:'red',cue:'saw'}
+    {image:'assets/university.jpg',kicker:'PARIS · 1968',title:'THE CAMPUS STOLE THE EXIT',speaker:'HOPPE // REMOTE SIGNAL',text:'Professors command the crowd. Che’s ghost holds the only route to Moscow.',motion:'pan-left',shot:'wide',focus:'45% 42%',accent:'blue',cue:'signal'},
+    {image:'assets/university.jpg',overlay:'assets/milei_attack.png',kicker:'OCCUPIED QUAD · LECTURE IN PROGRESS',title:'CLASS DISMISSED',speaker:'MILEI',text:'I have one question. Where are my dogs?',motion:'snap',shot:'close',focus:'68% 52%',accent:'red',cue:'saw'}
   ],
   mission4:[
-    {image:'assets/kremlin.jpg',kicker:'MOSCOW · 1952',title:'FIVE HOURS BECAME FIVE MINUTES',speaker:'HOPPE // REMOTE SIGNAL',text:'The dogs are above the core. Stalin is inside the machine. This is the last door I can open.',motion:'push',accent:'blue',cue:'heartbeat'},
-    {image:'assets/kremlin.jpg',overlay:'assets/milei_heavy.png',kicker:'REACTOR ACCESS · NO RETURN ROUTE',title:'OPEN IT',speaker:'MILEI',text:'After tonight, history will remember the sound of a chainsaw.',motion:'shake',accent:'red',cue:'saw'}
+    {image:'assets/kremlin.jpg',kicker:'MOSCOW · 1952',title:'FIVE HOURS BECAME FIVE MINUTES',speaker:'HOPPE // REMOTE SIGNAL',text:'The dogs are above the core. Stalin is inside the machine. This is the last door I can open.',motion:'push',shot:'wide',focus:'52% 38%',accent:'blue',cue:'heartbeat'},
+    {image:'assets/kremlin.jpg',overlay:'assets/milei_heavy.png',kicker:'REACTOR ACCESS · NO RETURN ROUTE',title:'OPEN IT',speaker:'MILEI',text:'After tonight, history will remember the sound of a chainsaw.',motion:'shake',shot:'close',focus:'65% 50%',accent:'red',cue:'saw'}
   ],
   theft:[
     {image:'assets/cs-calm-night-v2.jpg',kicker:'CASA ROSADA · 11:47 P.M.',title:'ONE QUIET HOUR',text:'The city finally goes quiet. Five mastiffs crowd the balcony. Milei allows himself one breath.',motion:'pan-right',accent:'blue',cue:'calm'},
-    {image:'assets/cs-dog-theft-v2.jpg',kicker:'11:48 P.M. · AIRSPACE BREACH',title:'THE SKY OPENS',speaker:'MILEI',text:'CONAN! MURRAY! MILTON!',motion:'shake',accent:'red',cue:'alarm'},
-    {image:'assets/cs-dogs-reactor-v2.jpg',kicker:'ALL PALACE SCREENS · HIJACKED',title:'FIVE HOURS',speaker:'UNKNOWN TRANSMISSION',text:'Come to 1951. Come alone. Watch the century burn if you are late.',motion:'push',accent:'red',cue:'threat'},
+    {image:'assets/cs-dog-theft-v2.jpg',kicker:'11:48 P.M. · AIRSPACE BREACH',title:'THE SKY OPENS',speaker:'MILEI',text:'CONAN! MURRAY! MILTON!',motion:'shake',shot:'wide',focus:'50% 38%',accent:'red',cue:'alarm'},
+    {image:'assets/cs-dogs-reactor-v2.jpg',kicker:'ALL PALACE SCREENS · HIJACKED',title:'FIVE HOURS',speaker:'UNKNOWN TRANSMISSION',text:'Come to 1951. Come alone. Watch the century burn if you are late.',motion:'push',shot:'close',focus:'58% 48%',accent:'red',cue:'threat'},
     {image:'assets/cs-milei-cockpit.jpg',kicker:'ENCRYPTED AUDIO · NO VIDEO',title:'A VOICE IN THE STATIC',speaker:'H. HOPPE // REMOTE SIGNAL',text:'I found the road: Buenos Aires, 1951. I cannot stand beside you. I can keep the door open.',motion:'pan-left',accent:'blue',cue:'signal'},
     {image:'assets/cs-milei-cockpit.jpg',overlay:'assets/milei_heavy.png',kicker:'THE BÖHM-BAWERK · LAUNCH BAY',title:'START THE SAW',speaker:'MILEI',text:'They took my dogs. I am taking back the century.',motion:'snap',accent:'red',cue:'saw'}
   ],
@@ -152,7 +152,7 @@ const CUTSCENES={
     {image:'assets/cs-dogs-reactor-v2.jpg',kicker:'REACTOR FEED · TEMPERATURE RISING',title:'THE CLOCK TAKES AN HOUR',speaker:'HOPPE // REMOTE SIGNAL',text:'The machine is feeding on the century. Javier—whatever you hit next, hit it faster.',motion:'shake',accent:'red',cue:'alarm'}
   ],
   betrayal:[
-    {image:'assets/cs-rand.jpg',kicker:'SIGNATURE VERIFIED',title:'THE VOICE WAS THE KEY',speaker:'AYN RAND // DEAD CHANNEL',text:'Every stolen coordinate carries Hoppe’s authorization mark. He did not lose the route. He sold it.',motion:'shake',accent:'blue',cue:'reveal'},
+    {image:'assets/cs-rand.jpg',kicker:'SIGNATURE VERIFIED',title:'THE VOICE WAS THE KEY',speaker:'AYN RAND // DEAD CHANNEL',text:'Every stolen coordinate carries Hoppe’s authorization mark. He did not lose the route. He sold it.',motion:'shake',shot:'close',focus:'56% 42%',accent:'blue',cue:'reveal'},
     {image:'assets/cs-stalin-statue.jpg',kicker:'MOSCOW · SECURE CHANNEL',title:'THE TRAP NEEDED A HERO',speaker:'STALIN',text:'Hoppe opened the road. You supplied the rage. History supplied the trap.',motion:'drop',accent:'red',cue:'threat'},
     {image:'assets/cs-milei-cockpit.jpg',kicker:'ENCRYPTED AUDIO · ORIGIN MASKED',title:'THE VOICE RETURNS',speaker:'HOPPE // REMOTE SIGNAL',text:'I needed a man history could not ignore. Save the dogs, Javier. Then decide whether to save me.',motion:'snap',accent:'blue',cue:'signal'}
   ],
@@ -200,7 +200,17 @@ const seenTips=new Set();
 const seenBossEntrances=new Set();
 let cinematicActive=false;
 function cinematicSting(cue){if(!audio||state.muted||profile.sfx===false)return;const patterns={calm:[[220,0,'triangle'],[330,.09,'triangle']],alarm:[[110,0,'square'],[82,.08,'sawtooth'],[55,.16,'square']],threat:[[73,0,'sawtooth'],[55,.12,'square']],signal:[[660,0,'square'],[880,.06,'square'],[440,.13,'square']],saw:[[82,0,'sawtooth'],[123,.08,'sawtooth'],[165,.16,'square']],heartbeat:[[72,0,'square'],[72,.16,'square']],reveal:[[740,0,'square'],[370,.08,'sawtooth'],[92,.18,'square']],shop:[[440,0,'square'],[554,.08,'square'],[660,.16,'square']],victory:[[440,0,'square'],[660,.08,'square'],[880,.16,'square']]};for(const [frequency,delay,type] of patterns[cue]||patterns.signal)setTimeout(()=>tone(frequency,.1,type,.028),delay*1000)}
-function playCutscene(key,onDone){const panels=CUTSCENES[key];if(!panels||seenScenes.has(key)){onDone?.();return}seenScenes.add(key);const wasPaused=state.paused;cinematicActive=true;state.paused=true;let index=0,typeTimer=null,revealText=null;const el=document.querySelector('#message');const stopTyping=()=>{clearInterval(typeTimer);typeTimer=null;if(revealText){revealText();revealText=null}};const render=()=>{stopTyping();const p=panels[index],motion=p.motion||'push',accent=p.accent||'blue',dots=panels.map((_,i)=>`<i class="${i===index?'active':''}"></i>`).join('');el.innerHTML=`<div class="cinema motion-${motion} accent-${accent}"><div class="cinema-frame"><img src="${p.image}" alt="${p.title}"><div class="cinema-accent"></div>${p.overlay?`<img class="cinema-overlay" src="${p.overlay}" alt="">`:''}</div><div class="cinema-copy"><p class="eyebrow">${p.kicker}</p><h1>${p.title}</h1>${p.speaker?`<p class="cinema-speaker">${p.speaker}</p>`:''}<p data-cinema-text></p><div><button data-next>${index===panels.length-1?'CONTINUE':'NEXT'}</button><button data-skip>SKIP</button></div></div><div class="cinema-progress">${dots}</div><div class="cinema-cut"></div></div>`;el.classList.remove('hidden');cinematicSting(p.cue);const copy=el.querySelector('[data-cinema-text]'),reduced=profile.reducedMotion||matchMedia('(prefers-reduced-motion:reduce)').matches;if(reduced)copy.textContent=p.text;else{let cursor=0;revealText=()=>{copy.textContent=p.text;cursor=p.text.length};typeTimer=setInterval(()=>{copy.textContent=p.text.slice(0,++cursor);if(cursor>=p.text.length){clearInterval(typeTimer);typeTimer=null;revealText=null}},18)}el.querySelector('[data-next]').onclick=()=>{if(typeTimer){stopTyping();return}if(++index<panels.length)render();else finish()};el.querySelector('[data-skip]').onclick=finish};const finish=()=>{stopTyping();el.classList.add('hidden');cinematicActive=false;state.paused=wasPaused;onDone?.()};render()}
+function cinematicVoice(speaker,cursor,char){if(cursor%4||!char.trim()||!speaker)return;const frequency=/MILEI/.test(speaker)?150:/HOPPE/.test(speaker)?520:/RAND/.test(speaker)?620:/STALIN|UNKNOWN|REACTOR/.test(speaker)?92:330;tone(frequency,.018,'square',.004)}
+function playCutscene(key,onDone){
+  const panels=CUTSCENES[key];if(!panels||seenScenes.has(key)){onDone?.();return}
+  seenScenes.add(key);const wasPaused=state.paused,el=document.querySelector('#message');let index=0,typeTimer=null,revealText=null,finished=false;cinematicActive=true;state.paused=true;
+  const stopTyping=()=>{clearInterval(typeTimer);typeTimer=null;if(revealText){revealText();revealText=null}};
+  const finish=()=>{if(finished)return;finished=true;stopTyping();document.removeEventListener('keydown',onCinemaKey);el.classList.add('hidden');cinematicActive=false;state.paused=wasPaused;onDone?.()};
+  const advance=()=>{if(typeTimer){stopTyping();return}const cinema=el.querySelector('.cinema');cinema?.classList.add('leaving');if(++index<panels.length)setTimeout(render,110);else setTimeout(finish,110)};
+  const onCinemaKey=event=>{if(!cinematicActive)return;if(event.key==='Enter'||event.key===' '){event.preventDefault();advance()}else if(event.key==='Escape'){event.preventDefault();finish()}};
+  const render=()=>{stopTyping();const p=panels[index],motion=p.motion||'push',accent=p.accent||'blue',shot=p.shot||'medium',dots=panels.map((_,i)=>`<i class="${i===index?'active':''}"></i>`).join('');el.innerHTML=`<div class="cinema motion-${motion} accent-${accent} shot-${shot}" style="--cinema-focus:${p.focus||'center'}"><div class="cinema-frame"><img src="${p.image}" alt="${p.title}"><div class="cinema-accent"></div>${p.overlay?`<img class="cinema-overlay" src="${p.overlay}" alt="">`:''}</div><div class="cinema-copy"><p class="eyebrow">${p.kicker}</p><h1>${p.title}</h1>${p.speaker?`<p class="cinema-speaker">${p.speaker}</p>`:''}<p data-cinema-text></p><div><button data-next>${index===panels.length-1?'CONTINUE':'NEXT'}</button><button data-skip>SKIP</button></div></div><div class="cinema-progress">${dots}</div><div class="cinema-cut"></div></div>`;el.classList.remove('hidden');cinematicSting(p.cue);const copy=el.querySelector('[data-cinema-text]'),reduced=profile.reducedMotion||matchMedia('(prefers-reduced-motion:reduce)').matches;if(reduced)copy.textContent=p.text;else{let cursor=0;revealText=()=>{copy.textContent=p.text;cursor=p.text.length};typeTimer=setInterval(()=>{const char=p.text[cursor]||'';copy.textContent=p.text.slice(0,++cursor);cinematicVoice(p.speaker,cursor,char);if(cursor>=p.text.length){clearInterval(typeTimer);typeTimer=null;revealText=null}},18)}el.querySelector('[data-next]').onclick=advance;el.querySelector('[data-skip]').onclick=finish;el.querySelector('[data-next]').focus()};
+  document.addEventListener('keydown',onCinemaKey);render()
+}
 const presentCutscene=playCutscene;playCutscene=function(key,onDone){if(CUTSCENES[key]&&!profile.unlockedScenes.includes(key)){profile.unlockedScenes.push(key);saveProfile()}presentCutscene(key,onDone)};
 const BOSS_INTROS={
   gremialista:{name:'EL GREMIALISTA',tag:'THE PERMANENT PICKET',portrait:'gremialista.png',backdrop:'calle-corrientes-2.jpg',villain:'The street belongs to the union!',milei:'Then consider this an unscheduled election.'},
