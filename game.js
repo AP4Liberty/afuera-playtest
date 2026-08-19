@@ -4,7 +4,7 @@ const specialButton=document.querySelector('[data-key="KeyL"]');
 ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
-const BUILD='0.9.0-playtest.68';
+const BUILD='0.9.0-playtest.69';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
@@ -29,7 +29,7 @@ const backgrounds = [1,2,3,4].map(n=>load(`assets/calle-corrientes-${n}.jpg`));
 const ministryBackground=load('assets/ministry.jpg');
 const universityBackground=load('assets/university.jpg');
 const kremlinBackground=load('assets/kremlin.jpg');
-const transmissionImages={RAND:load('assets/cs-rand.jpg'),DOG:load('assets/dog-reactor-identities-v1.png')};
+const transmissionImages={RAND:load('assets/cs-rand.jpg'),DOG:load('assets/dog-reactor-clones-v2.png')};
 const freshStats=()=>({damageTaken:0,perfectDodges:0,maxMultiplier:1,maxCombo:0,enemiesDefeated:0,pesosCollected:0,pesosLost:0,soundMoneyPickups:0,hazardsDestroyed:0,objectivesCompleted:0,objectivesOffered:0});
 const freshPerf=()=>({fps:60,frames:0,sampleTime:0,worstMs:0,droppedFrames:0,lowPower:false,slowSamples:0,fastSamples:0});
 const state = { running:false,paused:false,muted:false,runId:0,level:1,time:0,hitStop:0,camera:0,finishFlash:0, wave:0, wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0, scene:0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,score:0,multiplier:1, pesos:0, meter:0,meterReady:false, shake:0, banner:'CALLE CORRIENTES', bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],defeats:[],pickups:[], particles:[], projectiles:[],popups:[],props:[],hazards:[],stats:freshStats(),perf:freshPerf(), boss:false, victory:false };
@@ -141,9 +141,9 @@ const CUTSCENES={
     {image:'assets/kremlin.jpg',overlay:'assets/milei_heavy.png',kicker:'REACTOR ACCESS · NO RETURN ROUTE',title:'OPEN IT',speaker:'MILEI',text:'After tonight, history will remember the sound of a chainsaw.',motion:'shake',shot:'close',focus:'65% 50%',accent:'red',cue:'saw'}
   ],
   theft:[
-    {image:'assets/dog-balcony-identities-v1.png',kicker:'CASA ROSADA · 11:47 P.M.',title:'ONE QUIET HOUR',text:'Conan. Murray. Milton. Lucas. Robert. Five different shadows crowd the balcony. Milei allows himself one breath.',motion:'pan-right',accent:'blue',cue:'calm'},
-    {image:'assets/dog-kidnapping-identities-v1.png',kicker:'11:48 P.M. · AIRSPACE BREACH',title:'THE SKY OPENS',speaker:'MILEI',text:'CONAN! MURRAY! MILTON! LUCAS! ROBERT!',motion:'shake',shot:'wide',focus:'50% 38%',accent:'red',cue:'alarm'},
-    {image:'assets/dog-reactor-identities-v1.png',kicker:'ALL PALACE SCREENS · HIJACKED',title:'FIVE HOURS',speaker:'UNKNOWN TRANSMISSION',text:'Come to 1951. Come alone. Watch the century burn if you are late.',motion:'push',shot:'close',focus:'58% 48%',accent:'red',cue:'threat'},
+    {image:'assets/dog-balcony-clones-v2.png',kicker:'CASA ROSADA · 11:47 P.M.',title:'ONE QUIET HOUR',text:'Conan. Murray. Milton. Lucas. Robert. Five matching shadows crowd the balcony. Milei allows himself one breath.',motion:'pan-right',accent:'blue',cue:'calm'},
+    {image:'assets/dog-kidnapping-clones-v2.png',kicker:'11:48 P.M. · AIRSPACE BREACH',title:'THE SKY OPENS',speaker:'MILEI',text:'CONAN! MURRAY! MILTON! LUCAS! ROBERT!',motion:'shake',shot:'wide',focus:'50% 38%',accent:'red',cue:'alarm'},
+    {image:'assets/dog-reactor-clones-v2.png',kicker:'ALL PALACE SCREENS · HIJACKED',title:'FIVE HOURS',speaker:'UNKNOWN TRANSMISSION',text:'Come to 1951. Come alone. Watch the century burn if you are late.',motion:'push',shot:'close',focus:'58% 48%',accent:'red',cue:'threat'},
     {image:'assets/cs-milei-cockpit.jpg',kicker:'ENCRYPTED AUDIO · NO VIDEO',title:'A VOICE IN THE STATIC',speaker:'H. HOPPE // REMOTE SIGNAL',text:'I found the road: Buenos Aires, 1951. I cannot stand beside you. I can keep the door open.',motion:'pan-left',accent:'blue',cue:'signal'},
     {image:'assets/cs-milei-rage-v1.png',kicker:'THE BÖHM-BAWERK · IGNITION',title:'NO MORE WARNINGS',speaker:'MILEI',text:'They wanted me angry. They have no idea what angry means.',motion:'shake',shot:'close',focus:'68% 44%',accent:'red',cue:'saw'},
     {image:'assets/cs-milei-rage-v1.png',overlay:'assets/milei_heavy.png',kicker:'TEMPORAL ENGINE · REDLINE',title:'START THE SAW',speaker:'MILEI',text:'They took my dogs. I am taking back the century.',motion:'snap',accent:'red',cue:'saw'}
@@ -153,8 +153,8 @@ const CUTSCENES={
     {image:'assets/cs-milei-cockpit.jpg',kicker:'THE BÖHM-BAWERK · BLACK BOX',title:'A FLIGHT PLAN FROM YESTERDAY',speaker:'AYN RAND // ARCHIVAL GHOST',text:'Your route was filed before the dogs were taken. The enemy did not find you. Someone invited him in.',motion:'push',accent:'red',cue:'reveal'}
   ],
   liveDogs:[
-    {image:'assets/dog-reactor-identities-v1.png',kicker:'HIJACKED CAMPUS SIGNAL',title:'FIVE HEARTBEATS',speaker:'HOPPE // REMOTE SIGNAL',text:'All five are alive. Listen carefully.',motion:'push',accent:'red',cue:'heartbeat'},
-    {image:'assets/dog-reactor-identities-v1.png',kicker:'REACTOR FEED · TEMPERATURE RISING',title:'THE CLOCK TAKES AN HOUR',speaker:'HOPPE // REMOTE SIGNAL',text:'The machine is feeding on the century. Javier—whatever you hit next, hit it faster.',motion:'shake',accent:'red',cue:'alarm'}
+    {image:'assets/dog-reactor-clones-v2.png',kicker:'HIJACKED CAMPUS SIGNAL',title:'FIVE HEARTBEATS',speaker:'HOPPE // REMOTE SIGNAL',text:'All five are alive. Listen carefully.',motion:'push',accent:'red',cue:'heartbeat'},
+    {image:'assets/dog-reactor-clones-v2.png',kicker:'REACTOR FEED · TEMPERATURE RISING',title:'THE CLOCK TAKES AN HOUR',speaker:'HOPPE // REMOTE SIGNAL',text:'The machine is feeding on the century. Javier—whatever you hit next, hit it faster.',motion:'shake',accent:'red',cue:'alarm'}
   ],
   betrayal:[
     {image:'assets/cs-rand.jpg',kicker:'SIGNATURE VERIFIED',title:'THE VOICE WAS THE KEY',speaker:'AYN RAND // DEAD CHANNEL',text:'Every stolen coordinate carries Hoppe’s authorization mark. He did not lose the route. He sold it.',motion:'shake',shot:'close',focus:'56% 42%',accent:'blue',cue:'reveal'},
@@ -162,8 +162,8 @@ const CUTSCENES={
     {image:'assets/cs-milei-cockpit.jpg',kicker:'ENCRYPTED AUDIO · ORIGIN MASKED',title:'THE VOICE RETURNS',speaker:'HOPPE // REMOTE SIGNAL',text:'I needed a man history could not ignore. Save the dogs, Javier. Then decide whether to save me.',motion:'snap',accent:'blue',cue:'signal'}
   ],
   kennel:[
-    {image:'assets/dog-reactor-identities-v1.png',kicker:'ABOVE THE CORE · LOCKDOWN',title:'FIVE PAWS HIT THE GLASS',speaker:'MILEI',text:'Conan sees him first. Then Murray. Milton. Lucas. Robert. All five are on their feet.',motion:'push',accent:'red',cue:'heartbeat'},
-    {image:'assets/dog-reactor-identities-v1.png',kicker:'CORE FAILURE · FOUR MINUTES',title:'NO MORE SPEECHES',speaker:'MILEI',text:'I am here. Hold on. Papa brought the saw.',motion:'snap',accent:'red',cue:'saw'}
+    {image:'assets/dog-reactor-clones-v2.png',kicker:'ABOVE THE CORE · LOCKDOWN',title:'FIVE PAWS HIT THE GLASS',speaker:'MILEI',text:'Conan sees him first. Then Murray. Milton. Lucas. Robert. All five are on their feet.',motion:'push',accent:'red',cue:'heartbeat'},
+    {image:'assets/dog-reactor-clones-v2.png',kicker:'CORE FAILURE · FOUR MINUTES',title:'NO MORE SPEECHES',speaker:'MILEI',text:'I am here. Hold on. Papa brought the saw.',motion:'snap',accent:'red',cue:'saw'}
   ],
   marx:[
     {image:'assets/cs-marx-dissolves.jpg',kicker:'THE REACTOR OPENS',title:'THE STATUE BLEEDS LIGHT',speaker:'REACTOR',text:'IDEOLOGICAL MASS ACCEPTED.',motion:'drop',accent:'red',cue:'reveal'},
@@ -187,13 +187,13 @@ const CUTSCENES={
   ],
   outro4:[
     {image:'assets/kremlin.jpg',overlay:'assets/stalin_mecha.png',kicker:'FIVE-YEAR ENGINE · ZERO',title:'HISTORY BREAKS FREE',speaker:'SUPER STALIN',text:'The machine was inevitable.',motion:'shake',accent:'red',cue:'alarm'},
-    {image:'assets/dog-reactor-identities-v1.png',overlay:'assets/milei_heavy.png',kicker:'KENNEL LOCKS · RELEASED',title:'NOTHING IS INEVITABLE',speaker:'MILEI',text:'Liberty is not a checkpoint. It is the road home.',motion:'push',accent:'blue',cue:'victory'},
-    {image:'assets/dog-reactor-escape-identities-v1.png',kicker:'REACTOR COLLAPSE · AIRSHIP RAMP OPEN',title:'RUN FOR DAYLIGHT',speaker:'MILEI',text:'Conan. Murray. Milton. Lucas. Robert. One exit. Nobody gets left in history.',motion:'pan-right',shot:'wide',focus:'58% 48%',accent:'red',cue:'victory'}
+    {image:'assets/dog-reactor-clones-v2.png',overlay:'assets/milei_heavy.png',kicker:'KENNEL LOCKS · RELEASED',title:'NOTHING IS INEVITABLE',speaker:'MILEI',text:'Liberty is not a checkpoint. It is the road home.',motion:'push',accent:'blue',cue:'victory'},
+    {image:'assets/dog-reactor-escape-clones-v2.png',kicker:'REACTOR COLLAPSE · AIRSHIP RAMP OPEN',title:'RUN FOR DAYLIGHT',speaker:'MILEI',text:'Conan. Murray. Milton. Lucas. Robert. One exit. Nobody gets left in history.',motion:'pan-right',shot:'wide',focus:'58% 48%',accent:'red',cue:'victory'}
   ],
   homecoming:[
-    {image:'assets/dog-homecoming-identities-v1.png',kicker:'CASA ROSADA · SUNRISE',title:'FIVE SHADOWS AT THE DOOR',text:'For one terrible second, the palace is completely still.',motion:'pan-right',accent:'blue',cue:'calm'},
-    {image:'assets/dog-homecoming-identities-v1.png',kicker:'THEN · THUNDER',title:'THEY KNOW HIS FOOTSTEPS',speaker:'MILEI',text:'Easy—easy! Conan, Murray, Milton, Lucas, Robert—I missed you too.',motion:'snap',accent:'blue',cue:'victory'},
-    {image:'assets/dog-homecoming-identities-v1.png',kicker:'THE CENTURY · RETURNED',title:'SOME THINGS ARE NOT FOR SALE',speaker:'MILEI',text:'A country can be rebuilt. A family comes home.',motion:'push',accent:'red',cue:'victory'}
+    {image:'assets/dog-homecoming-clones-v2.png',kicker:'CASA ROSADA · SUNRISE',title:'FIVE SHADOWS AT THE DOOR',text:'For one terrible second, the palace is completely still.',motion:'pan-right',accent:'blue',cue:'calm'},
+    {image:'assets/dog-homecoming-clones-v2.png',kicker:'THEN · THUNDER',title:'THEY KNOW HIS FOOTSTEPS',speaker:'MILEI',text:'Easy—easy! Conan, Murray, Milton, Lucas, Robert—I missed you too.',motion:'snap',accent:'blue',cue:'victory'},
+    {image:'assets/dog-homecoming-clones-v2.png',kicker:'THE CENTURY · RETURNED',title:'SOME THINGS ARE NOT FOR SALE',speaker:'MILEI',text:'A country can be rebuilt. A family comes home.',motion:'push',accent:'red',cue:'victory'}
   ],
   postCredits:[
     {image:'assets/cs-musk-news.jpg',kicker:'BREAKING NEWS · SIGNAL OVERRIDE',title:'ANOTHER HOSTAGE',speaker:'NEWS ANCHOR',text:'A second temporal breach has opened. This time, the hostage has rockets.',motion:'snap',accent:'red',cue:'alarm'},
