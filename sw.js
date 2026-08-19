@@ -1,5 +1,5 @@
-const CACHE='afuera-v75';
-const CORE=['./','./index.html','./styles.css','./shop.css','./level-select.css','./mission-results.css','./hall.css','./mobile-polish.css','./layout-fixes.css','./game.js','./manifest.webmanifest'];
+const CACHE='afuera-v76';
+const CORE=['./','./index.html','./styles.css','./shop.css','./level-select.css','./mission-results.css','./hall.css','./mobile-polish.css','./cinematics.css','./layout-fixes.css','./game.js','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);const manifest=await fetch('./asset-manifest.json').then(r=>r.json());await cache.addAll([...CORE,'./asset-manifest.json',...manifest.assets.map(path=>`./${path}`)])})()));
 self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')event.waitUntil(self.skipWaiting())});
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key!==CACHE)await caches.delete(key);await self.clients.claim()})()));
