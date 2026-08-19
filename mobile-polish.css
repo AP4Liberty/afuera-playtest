@@ -3,9 +3,11 @@
 #touch.active{opacity:.94}
 #touch button{backdrop-filter:blur(2px)}
 #touch [data-key="KeyL"].ready{color:#07172d;background:#ffd15a;border-color:#fff;box-shadow:0 0 0 3px #07172d,0 0 24px #ffd15a;animation:special-ready .55s steps(2) infinite}@keyframes special-ready{50%{filter:brightness(1.45);transform:translateY(-2px)}}
+#touch [data-key="KeyJ"].finisher{color:#07172d;background:#ffd15a;border-color:#fff;box-shadow:0 0 18px #ffd15a;animation:finisher-ready .42s steps(2) infinite}#touch [data-key="Space"].danger{background:#c62f37;border-color:#ffd15a;box-shadow:0 0 18px #c62f37;animation:dodge-danger .34s steps(2) infinite}@keyframes finisher-ready{50%{filter:brightness(1.5)}}@keyframes dodge-danger{50%{transform:translateY(-2px);filter:brightness(1.35)}}
 button:focus-visible{outline:4px solid #73c8e8;outline-offset:4px}
 #shell.compact-controls .dpad{grid-template-columns:repeat(3,42px);gap:3px}#shell.compact-controls .actions{grid-template-columns:repeat(2,52px);gap:3px}#shell.compact-controls .dpad button,#shell.compact-controls .actions button{height:38px;font-size:8px}
 #updateButton{width:48px!important;background:#e0ad3b!important;color:#07172d!important;font-weight:900}
 .pause-help{margin-top:14px!important;color:#73c8e8!important;letter-spacing:.08em}.panel #pauseStatus{font-size:13px;color:#f1e2bd}
+.pause-intel{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:7px;width:min(760px,92%);margin:8px 0 14px}.pause-intel span{padding:8px 10px;border:1px solid #31445c;background:#020712cc;color:#f1e2bd;font:700 11px 'Chakra Petch',Arial}.pause-intel b{display:block;margin-bottom:4px;color:#73c8e8;font:9px Bungee;letter-spacing:.08em}@media(max-width:700px){.pause-intel{grid-template-columns:1fr;margin:4px 0 8px}.pause-intel span{padding:5px 7px;font-size:9px}}
 @media (orientation:portrait) and (pointer:coarse){#orientationHint{display:block;position:absolute;top:max(6px,env(safe-area-inset-top));left:50%;translate:-50% 0;z-index:7;width:max-content;max-width:90%;padding:5px 9px;border:1px solid #e0ad3b;background:#07172ddd;color:#f1e2bd;font:700 8px Arial,sans-serif;letter-spacing:.1em}#touch{opacity:.38}}
-@media (prefers-reduced-motion:reduce){#touch{transition:none}#touch [data-key="KeyL"].ready{animation:none}}
+@media (prefers-reduced-motion:reduce){#touch{transition:none}#touch [data-key="KeyL"].ready,#touch [data-key="KeyJ"].finisher,#touch [data-key="Space"].danger{animation:none}}
