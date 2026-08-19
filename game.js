@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
-const BUILD='0.9.0-playtest.58';
+const BUILD='0.9.0-playtest.59';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
@@ -103,7 +103,7 @@ function gamepad(){return [...(navigator.getGamepads?.()||[])].find(Boolean)||nu
 function padDown(index){return !!currentPad?.buttons[index]?.pressed}
 function padOnce(index){return padDown(index)&&!padHeld[index]}
 
-const hero = {x:180,y:405,vx:0,vy:0,walkPhase:0,hp:100,maxHp:100,face:1,state:'idle',timer:0,invuln:0,dodgeWindow:0,combo:0,hits:0,comboTime:0,stepCd:0,goldTimer:0,handTimer:0,attackBuffer:null,attackHit:null,dodgeBuffer:0};
+const hero = {x:180,y:405,vx:0,vy:0,walkPhase:0,hp:100,maxHp:100,face:1,state:'idle',timer:0,hit:0,invuln:0,dodgeWindow:0,combo:0,hits:0,comboTime:0,stepCd:0,goldTimer:0,handTimer:0,attackBuffer:null,attackHit:null,dodgeBuffer:0};
 
 const TYPES = {
   riot:{hp:36,speed:62,damage:8,value:18,scale:.62,range:50,color:'#377dc4'},
@@ -235,7 +235,7 @@ function reset(level=state.level,resume=null){
   state.stats.hazardsDestroyed=Number(state.stats.hazardsDestroyed)||0;
   if(dailyChallenge)state.stats.dailyDay=dailyNumber;
   document.querySelector('#pauseButton').textContent='Ⅱ';
-  const maxHp=100+profile.health*10;Object.assign(hero,{x:180,y:floorBottom()-22,vx:0,vy:0,walkPhase:0,hp:maxHp,maxHp,face:1,state:'idle',timer:0,invuln:0,dodgeWindow:0,combo:0,hits:0,comboTime:0,stepCd:0,goldTimer:0,handTimer:0,attackBuffer:null,attackHit:null,dodgeBuffer:0});state.stats.lastHp=maxHp;
+  const maxHp=100+profile.health*10;Object.assign(hero,{x:180,y:floorBottom()-22,vx:0,vy:0,walkPhase:0,hp:maxHp,maxHp,face:1,state:'idle',timer:0,hit:0,invuln:0,dodgeWindow:0,combo:0,hits:0,comboTime:0,stepCd:0,goldTimer:0,handTimer:0,attackBuffer:null,attackHit:null,dodgeBuffer:0});state.stats.lastHp=maxHp;
   spawnWave();
 }
 
@@ -362,7 +362,7 @@ function update(dt){
   if(state.hitStop>0){state.hitStop-=dt;return}
   state.time+=dt; state.bannerTime-=dt;state.bossQuoteTime-=dt;state.bossMoveTime-=dt;state.waveGradeTime-=dt;state.tipTime-=dt;state.sceneFade=Math.max(0,state.sceneFade-dt*1.8);state.phaseFlash=Math.max(0,state.phaseFlash-dt);state.shake=Math.max(0,state.shake-dt*25);
   if(audio&&state.time>=state.musicNext)playMusicStep()
-  hero.timer=Math.max(0,hero.timer-dt); hero.invuln=Math.max(0,hero.invuln-dt);hero.dodgeWindow=Math.max(0,hero.dodgeWindow-dt);hero.goldTimer=Math.max(0,hero.goldTimer-dt);hero.handTimer=Math.max(0,hero.handTimer-dt);if(hero.handTimer>0)hero.invuln=Math.max(hero.invuln,.08); hero.comboTime-=dt;hero.stepCd-=dt;
+  hero.timer=Math.max(0,hero.timer-dt);hero.hit=Math.max(0,hero.hit-dt);hero.invuln=Math.max(0,hero.invuln-dt);hero.dodgeWindow=Math.max(0,hero.dodgeWindow-dt);hero.goldTimer=Math.max(0,hero.goldTimer-dt);hero.handTimer=Math.max(0,hero.handTimer-dt);if(hero.handTimer>0)hero.invuln=Math.max(hero.invuln,.08); hero.comboTime-=dt;hero.stepCd-=dt;
   if(hero.attackHit){hero.attackHit.life-=dt;if(hero.attackHit.life<=0){const pendingHit=hero.attackHit;hero.attackHit=null;resolvePlayerHit(pendingHit)}}
   if(hero.dodgeBuffer>0){hero.dodgeBuffer-=dt;if(hero.timer<=0)dodge()}
   if(hero.attackBuffer){hero.attackBuffer.life-=dt;if(hero.attackBuffer.life<=0)hero.attackBuffer=null;else if(hero.timer<=0){const buffered=hero.attackBuffer.kind;hero.attackBuffer=null;playerAttack(buffered)}}
@@ -449,10 +449,10 @@ function updateEnemies(dt){
   }
   for(let i=0;i<state.enemies.length;i++)for(let j=i+1;j<state.enemies.length;j++){const a=state.enemies[i],b=state.enemies[j],dx=b.x-a.x,dy=(b.y-a.y)*1.5,d=Math.hypot(dx,dy);if(d>0&&d<58){const push=(58-d)*.035;a.x-=dx/d*push;b.x+=dx/d*push;a.y-=dy/d*push*.3;b.y+=dy/d*push*.3}}
 }
-function enemyStrike(e,t){e.state='attack';e.vx=0;e.vy=0;e.timer=.35;e.attackKind='strike';e.attackCd=(t.boss?Math.max(.42,.9-(e.phase-1)*.17):1.05+Math.random()*.55)/(selectedDifficulty==='motosierra'?1.12:1);let landed=false;if(e.type==='peron'&&e.phase>=2)spawnProjectile(e,'decree',t.damage*.7);const inRange=dist(e,hero)<t.range+28;if(inRange&&hero.invuln>0)perfectDodge(e.x,e.y-40);else if(inRange){landed=true;const damage=t.damage*(t.boss?1+(e.phase-1)*.16:1)*(e.elite?1.2:1)*difficultyDamage();hero.hp-=damage;breakMultiplier();rumble(t.boss ? .7 : .42,t.boss ? 110 : 65);popup(hero.x,hero.y-85,`-${Math.round(damage)}`,'#ff6b68');hero.invuln=.5;hero.x+=e.face*30;state.shake=6;burst(hero.x,hero.y-35,'#c62f37',8);tone(70,.13,'square',.05)}if(t.thief&&landed&&state.pesos>0){const stolen=Math.min(20,state.pesos);state.pesos-=stolen;e.stolen=(e.stolen||0)+stolen;e.flee=2.7;e.x+=e.face*-55;popup(e.x,e.y-105,`STOLE $${Math.floor(stolen)}`,'#ffd15a');state.banner='TAX COLLECTOR ESCAPING';state.bannerTime=.8}if(hero.hp<=0)lose()}
+function enemyStrike(e,t){e.state='attack';e.vx=0;e.vy=0;e.timer=.35;e.attackKind='strike';e.attackCd=(t.boss?Math.max(.42,.9-(e.phase-1)*.17):1.05+Math.random()*.55)/(selectedDifficulty==='motosierra'?1.12:1);let landed=false;if(e.type==='peron'&&e.phase>=2)spawnProjectile(e,'decree',t.damage*.7);const inRange=dist(e,hero)<t.range+28;if(inRange&&hero.invuln>0)perfectDodge(e.x,e.y-40);else if(inRange){landed=true;const damage=t.damage*(t.boss?1+(e.phase-1)*.16:1)*(e.elite?1.2:1)*difficultyDamage();hero.hp-=damage;hero.hit=.22;breakMultiplier();rumble(t.boss ? .7 : .42,t.boss ? 110 : 65);popup(hero.x,hero.y-85,`-${Math.round(damage)}`,'#ff6b68');hero.invuln=.5;hero.x+=e.face*30;state.shake=6;burst(hero.x,hero.y-35,'#c62f37',8);tone(70,.13,'square',.05)}if(t.thief&&landed&&state.pesos>0){const stolen=Math.min(20,state.pesos);state.pesos-=stolen;e.stolen=(e.stolen||0)+stolen;e.flee=2.7;e.x+=e.face*-55;popup(e.x,e.y-105,`STOLE $${Math.floor(stolen)}`,'#ffd15a');state.banner='TAX COLLECTOR ESCAPING';state.bannerTime=.8}if(hero.hp<=0)lose()}
 
 function spawnProjectile(e,kind,damage){const dx=hero.x-e.x,dy=(hero.y-35)-(e.y-45),d=Math.hypot(dx,dy)||1,speed=kind==='decree'?235:kind==='missile'?270:kind==='lightning'?310:190;state.projectiles.push({x:e.x,y:e.y-45,vx:dx/d*speed,vy:dy/d*speed,damage,kind,life:3})}
-function updateProjectiles(dt){state.projectiles.forEach(p=>{p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const collision=Math.hypot(p.x-hero.x,p.y-(hero.y-35))<30;if(collision&&hero.invuln>0){perfectDodge(p.x,p.y);p.life=0}else if(collision){const damage=p.damage*difficultyDamage();hero.hp-=damage;breakMultiplier();hero.invuln=.55;p.life=0;state.shake=5;rumble(.55,75);popup(hero.x,hero.y-85,`-${Math.round(damage)}`,'#ff6b68');burst(hero.x,hero.y-35,p.kind==='decree'?'#e0ad3b':'#73c8e8',9);tone(72,.12);if(hero.hp<=0)lose()}});state.projectiles=state.projectiles.filter(p=>p.life>0&&p.x>-40&&p.x<W+40&&p.y>240&&p.y<H+40)}
+function updateProjectiles(dt){state.projectiles.forEach(p=>{p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const collision=Math.hypot(p.x-hero.x,p.y-(hero.y-35))<30;if(collision&&hero.invuln>0){perfectDodge(p.x,p.y);p.life=0}else if(collision){const damage=p.damage*difficultyDamage();hero.hp-=damage;hero.hit=.22;breakMultiplier();hero.invuln=.55;p.life=0;state.shake=5;rumble(.55,75);popup(hero.x,hero.y-85,`-${Math.round(damage)}`,'#ff6b68');burst(hero.x,hero.y-35,p.kind==='decree'?'#e0ad3b':'#73c8e8',9);tone(72,.12);if(hero.hp<=0)lose()}});state.projectiles=state.projectiles.filter(p=>p.life>0&&p.x>-40&&p.x<W+40&&p.y>240&&p.y<H+40)}
 function popup(x,y,text,color){state.popups.push({x,y,text,color,life:.75})}
 function updatePopups(dt){state.popups.forEach(p=>{p.life-=dt;p.y-=42*dt});state.popups=state.popups.filter(p=>p.life>0)}
 
@@ -470,7 +470,7 @@ function updatePickups(dt){
 }
 function updateProps(dt){state.props.forEach(p=>{p.hit=Math.max(0,(p.hit||0)-dt);if(p.hp<=0&&!p.dead){p.dead=true;for(let i=0;i<3;i++)state.pickups.push({x:p.x+(i-1)*17,y:p.y+(Math.random()-.5)*20,value:7,age:0});const powerRoll=Math.random();if(hero.hp/hero.maxHp<.45&&powerRoll<.42)state.pickups.push({x:p.x,y:p.y-18,power:'mate',age:0});else if(powerRoll<.14)state.pickups.push({x:p.x,y:p.y-18,power:state.level%2?'gold':'hand',age:0});popup(p.x,p.y-85,'PROPERTY RIGHTS','#ffd15a');state.score+=250;burst(p.x,p.y-25,'#d8a05b',16);tone(120,.12,'square',.05)}});state.props=state.props.filter(p=>!p.dead)}
 function hazardState(h){const cycle=h.type==='vent'?3:h.type==='pamphlets'?4:0,phase=cycle?(state.time+h.phase)%cycle:0,start=h.type==='vent'?2.15:h.type==='pamphlets'?3.25:Infinity;return {active:phase>start,warning:phase>start-.4&&phase<=start}}
-function updateHazards(dt){for(const h of state.hazards){if(h.dead)continue;h.damageCd=Math.max(0,(h.damageCd||0)-dt);const {active}=hazardState(h);if(active&&h.damageCd<=0&&hero.invuln<=0&&dist(h,hero)<h.r){const damage=h.type==='vent'?12:7;hero.hp-=damage;breakMultiplier();hero.invuln=.65;h.damageCd=.8;state.shake=5;popup(hero.x,hero.y-85,`-${damage}`,h.type==='vent'?'#73c8e8':'#c62f37');burst(hero.x,hero.y-20,h.type==='vent'?'#73c8e8':'#c62f37',10);tone(h.type==='vent'?150:90,.16,'sawtooth',.05);if(hero.hp<=0)lose()}}state.hazards=state.hazards.filter(h=>!h.dead)}
+function updateHazards(dt){for(const h of state.hazards){if(h.dead)continue;h.damageCd=Math.max(0,(h.damageCd||0)-dt);const {active}=hazardState(h);if(active&&h.damageCd<=0&&hero.invuln<=0&&dist(h,hero)<h.r){const damage=h.type==='vent'?12:7;hero.hp-=damage;hero.hit=.22;breakMultiplier();hero.invuln=.65;h.damageCd=.8;state.shake=5;popup(hero.x,hero.y-85,`-${damage}`,h.type==='vent'?'#73c8e8':'#c62f37');burst(hero.x,hero.y-20,h.type==='vent'?'#73c8e8':'#c62f37',10);tone(h.type==='vent'?150:90,.16,'sawtooth',.05);if(hero.hp<=0)lose()}}state.hazards=state.hazards.filter(h=>!h.dead)}
 function burst(x,y,color,n){if(state.perf.lowPower)n=Math.max(3,Math.ceil(n*.55));for(let i=0;i<n;i++)state.particles.push({x,y,vx:(Math.random()-.5)*220,vy:(Math.random()-.7)*180,life:.3+Math.random()*.35,color});}
 function updateParticles(dt){state.particles.forEach(p=>{p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=280*dt});state.particles=state.particles.filter(p=>p.life>0);const cap=state.perf.lowPower?90:180;if(state.particles.length>cap)state.particles.splice(0,state.particles.length-cap)}
 
@@ -522,9 +522,9 @@ function drawFighter(o,isHero){
   if(!isHero&&o.type!=='professor'&&state.enemies.some(e=>e.type==='professor'&&e.hp>0)){ctx.strokeStyle='#9d6fe899';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(o.x,o.y+2,34*scale,10*scale,0,0,Math.PI*2);ctx.stroke()}
   if(!isHero&&o.elite){ctx.strokeStyle='#ffd15a';ctx.lineWidth=3;ctx.globalAlpha=.6+Math.sin(state.time*7)*.18;ctx.beginPath();ctx.ellipse(o.x,o.y+1,40*scale,13*scale,0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1}
   ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(o.x,o.y+4,32*scale,9*scale,0,0,Math.PI*2);ctx.fill();
-  const charging=!isHero&&o.state==='charge',dodging=isHero&&o.state==='dodge',attacking=o.state==='attack'||o.state==='heavy',stretchX=charging?1.17:dodging?1.19:attacking?1.08:1+strideLoad*.025,stretchY=charging?.86:dodging?.84:attacking?.93:1-strideLoad*.018;
-  const paintSprite=(alpha=1,trail=0)=>{ctx.save();ctx.globalAlpha*=alpha;ctx.translate(o.x-trail*(o.face||1),o.y+bob);if(!isHero&&o.state==='attack')ctx.rotate((o.face||1)*-.1);else if(o.state==='walk')ctx.rotate(clamp(o.vx||0,-180,180)/5200);ctx.scale((o.face||1)*scale*stretchX,scale*stretchY);if(im?.complete){const h=im.height,w=im.width;ctx.drawImage(im,-w/2,-h,w,h)}else{ctx.fillStyle=isHero?'#73c8e8':t.color;ctx.fillRect(-25,-80,50,80)}ctx.restore()};
-  if(dodging||charging){paintSprite(.12,34);paintSprite(.22,18)}paintSprite();ctx.globalAlpha=1;
+  const charging=!isHero&&o.state==='charge',dodging=isHero&&o.state==='dodge',attacking=o.state==='attack'||o.state==='heavy',reacting=o.hit>0,stretchX=reacting?1.13:charging?1.17:dodging?1.19:attacking?1.08:1+strideLoad*.025,stretchY=reacting?.86:charging?.86:dodging?.84:attacking?.93:1-strideLoad*.018;
+  const paintSprite=(alpha=1,trail=0)=>{ctx.save();ctx.globalAlpha*=alpha;const hitJolt=reacting?Math.sin(state.time*75)*5:0;ctx.translate(o.x-trail*(o.face||1)+hitJolt,o.y+bob);if(reacting)ctx.rotate((o.face||1)*-.075);else if(!isHero&&o.state==='attack')ctx.rotate((o.face||1)*-.1);else if(o.state==='walk')ctx.rotate(clamp(o.vx||0,-180,180)/5200);ctx.scale((o.face||1)*scale*stretchX,scale*stretchY);if(im?.complete){const h=im.height,w=im.width;ctx.drawImage(im,-w/2,-h,w,h)}else{ctx.fillStyle=isHero?'#73c8e8':t.color;ctx.fillRect(-25,-80,50,80)}ctx.restore()};
+  if(dodging||charging||reacting){paintSprite(.12,34);paintSprite(.22,18)}paintSprite();ctx.globalAlpha=1;
   if(isHero&&attacking){const sweep=hero.attackTimer||.08;ctx.save();ctx.globalAlpha=clamp(sweep*4,0,.75);ctx.strokeStyle=o.state==='heavy'?'#ffd15a':'#73c8e8';ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=12;ctx.lineWidth=o.state==='heavy'?10:6;ctx.beginPath();const facing=o.face||1;ctx.arc(o.x+facing*12,o.y-47,o.state==='heavy'?58:46,facing>0?-.95:Math.PI-.95,facing>0?.75:Math.PI+.75);ctx.stroke();ctx.restore()}
   if(!isHero&&(TYPES[o.type].boss||o.hit>0)){ctx.fillStyle='#250b12';ctx.fillRect(o.x-35,o.y-105,70,7);ctx.fillStyle='#c62f37';ctx.fillRect(o.x-35,o.y-105,70*clamp(o.hp/o.maxHp,0,1),7)}
   if(!isHero&&o.type==='tax'&&(o.stolen||0)>0){ctx.fillStyle='#ffd15a';ctx.strokeStyle='#07172d';ctx.lineWidth=3;ctx.font='bold 13px Chakra Petch';ctx.textAlign='center';ctx.strokeText(`$${Math.floor(o.stolen)}`,o.x,o.y-115);ctx.fillText(`$${Math.floor(o.stolen)}`,o.x,o.y-115);ctx.textAlign='left'}
