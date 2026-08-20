@@ -5,7 +5,7 @@ ctx.imageSmoothingEnabled = false;
 
 const W = canvas.width, H = canvas.height;
 const LEVEL_ENCOUNTERS=8;
-const BUILD='0.9.0-playtest.90';
+const BUILD='0.9.0-playtest.91';
 const floorTop=()=>state.level===1?([478,455,440,460][state.scene]??460):state.level===2?405:state.level===3?430:390;
 const floorBottom=()=>515;
 const query=new URLSearchParams(location.search);
@@ -33,7 +33,7 @@ const kremlinBackground=load('assets/kremlin.jpg');
 const transmissionImages={RAND:load('assets/cs-rand.jpg'),DOG:load('assets/dog-reactor-clones-v2.png')};
 const freshStats=()=>({damageTaken:0,perfectDodges:0,maxMultiplier:1,maxCombo:0,enemiesDefeated:0,pesosCollected:0,pesosLost:0,soundMoneyPickups:0,hazardsDestroyed:0,objectivesCompleted:0,objectivesOffered:0});
 const freshPerf=()=>({fps:60,frames:0,sampleTime:0,worstMs:0,droppedFrames:0,lowPower:false,slowSamples:0,fastSamples:0});
-const state = { running:false,paused:false,muted:false,runId:0,level:1,time:0,hitStop:0,camera:0,finishFlash:0, wave:0, wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0, scene:0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,score:0,multiplier:1, pesos:0, meter:0,meterReady:false,bankAward:0,missionRank:'C RANK',newBest:false,resultRecord:null,shake:0, banner:'CALLE CORRIENTES', bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],defeats:[],pickups:[], particles:[], projectiles:[],popups:[],props:[],hazards:[],stats:freshStats(),perf:freshPerf(), boss:false, victory:false };
+const state = { running:false,paused:false,muted:false,runId:0,level:1,time:0,hitStop:0,camera:0,finishFlash:0, wave:0, wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0, scene:0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,musicScene:-1,score:0,multiplier:1, pesos:0, meter:0,meterReady:false,bankAward:0,missionRank:'C RANK',newBest:false,resultRecord:null,shake:0, banner:'CALLE CORRIENTES', bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],defeats:[],pickups:[], particles:[], projectiles:[],popups:[],props:[],hazards:[],stats:freshStats(),perf:freshPerf(), boss:false, victory:false };
 const profile = loadProfile();
 profile.unlockedScenes=Array.isArray(profile.unlockedScenes)?profile.unlockedScenes:[];
 profile.honors=Array.isArray(profile.honors)?profile.honors:[];
@@ -99,11 +99,33 @@ const RHYTHM={
   3:{kick:[0,6,8,14],snare:[4,12],hat:[2,5,10,13]},
   4:{kick:[0,8,10],snare:[4,12],hat:[3,7,11,15]}
 };
+const ARRANGEMENT={
+  1:{shift:[0,2,5,7],counter:[81,79,76,72,84,81,79,76]},
+  2:{shift:[0,-2,3,5],counter:[79,77,74,70,82,79,77,74]},
+  3:{shift:[0,3,5,7],counter:[84,82,79,75,87,84,82,79]},
+  4:{shift:[0,-2,1,5],counter:[76,74,71,67,79,76,74,71]}
+};
 const midiHz=note=>440*Math.pow(2,(note-69)/12);
-function playMusicStep(){const track=MUSIC[state.level],rhythm=RHYTHM[state.level],bossEnemy=state.enemies.find(e=>TYPES[e.type].boss),boss=!!bossEnemy;if(state.musicBoss!==boss){state.musicBoss=boss;state.musicNote=0;tone(midiHz(boss?45:57),.28,boss?'sawtooth':'triangle',.016,'music')}const step=state.musicNote++,sequence=boss?track.bossLead:track.lead,index=step%sequence.length,beat=index%16,phase=bossEnemy?.phase||1,lead=sequence[index],harmony=track.harmony[index],bass=track.bass[index],speed=boss?.78:1;if(lead!=null)tone(midiHz(lead+(boss&&phase===3&&index%4===3?12:0)),track.step*.82,'square',boss?.015:.012,'music',0);if(harmony!=null)tone(midiHz(harmony+(boss&&phase>1?5:0)),track.step*.72,index%4?'square':'sawtooth',boss?.008:.006,'music',0);if(bass!=null)tone(midiHz(bass-(boss&&phase===3&&index%8===4?12:0)),track.step*1.35,'triangle',boss?.022:.018,'music',0);if(rhythm.kick.includes(beat))tone(state.level===4?46:52,.07,'triangle',boss?.018:.014,'music',0);if(rhythm.snare.includes(beat))chipNoise(boss?.016:.012,.055,900);if(rhythm.hat.includes(beat)||boss&&phase===3&&beat%2)chipNoise(.006,.022,3200);if(boss&&index%2===1)tone(midiHz(track.bass[(index-1)%track.bass.length]||40)+.5,track.step*.34,'square',.004,'music',0);if(hero.hits>=5&&hero.comboTime>0&&beat%2===1)tone(midiHz(lead+12),track.step*.34,'square',Math.min(.011,.004+hero.hits*.0004),'music',0);if(hero.hp/hero.maxHp<.2&&beat%8===0){tone(62,.08,'triangle',.022,'music',1);setTimeout(()=>tone(56,.07,'triangle',.014,'music',1),95)}state.musicNext=state.time+track.step*speed}
+function playMusicStep(){
+  const track=MUSIC[state.level],rhythm=RHYTHM[state.level],arrangement=ARRANGEMENT[state.level],bossEnemy=state.enemies.find(e=>TYPES[e.type].boss),boss=!!bossEnemy,section=clamp(state.scene,0,3);
+  if(state.musicBoss!==boss||state.musicScene!==section){state.musicBoss=boss;state.musicScene=section;state.musicNote=0;tone(midiHz(boss?45:57+arrangement.shift[section]),.28,boss?'sawtooth':'triangle',.016,'music')}
+  const step=state.musicNote++,sequence=boss?track.bossLead:track.lead,index=step%sequence.length,beat=index%16,phase=bossEnemy?.phase||1,sectionShift=boss?0:arrangement.shift[section],lead=sequence[index],harmony=track.harmony[index],bass=track.bass[index],speed=boss?.78:1;
+  if(lead!=null)tone(midiHz(lead+sectionShift+(boss&&phase===3&&index%4===3?12:0)),track.step*.82,'square',boss?.015:.012,'music',0);
+  if(harmony!=null)tone(midiHz(harmony+sectionShift+(boss&&phase>1?5:0)),track.step*.72,index%4?'square':'sawtooth',boss?.008:.006,'music',0);
+  if(bass!=null)tone(midiHz(bass+sectionShift-(boss&&phase===3&&index%8===4?12:0)),track.step*1.35,'triangle',boss?.022:.018,'music',0);
+  if((section>=1&&!boss&&beat%4===3)||(boss&&phase>=2&&beat%2===1)){const counter=arrangement.counter[(Math.floor(step/2)+section)%arrangement.counter.length];tone(midiHz(counter+sectionShift+(boss&&phase===3?5:0)),track.step*.42,section>=3||boss?'sawtooth':'square',boss?.007:.0045,'music',0)}
+  if(rhythm.kick.includes(beat)||section>=2&&!boss&&beat===14)tone(state.level===4?46:52,.07,'triangle',boss?.018:.014,'music',0);
+  if(rhythm.snare.includes(beat)||section===3&&!boss&&beat===15)chipNoise(boss?.016:.012,.055,900);
+  if(rhythm.hat.includes(beat)||section>=2&&!boss&&beat%2===1||boss&&phase===3&&beat%2)chipNoise(section===3||boss?.008:.006,.022,3200);
+  if((section>=2||boss)&&beat===15){chipNoise(.014,.09,720);tone(midiHz((bass||40)+12),.11,'square',.008,'music',0)}
+  if(boss&&index%2===1)tone(midiHz(track.bass[(index-1)%track.bass.length]||40)+.5,track.step*.34,'square',.004,'music',0);
+  if(hero.hits>=5&&hero.comboTime>0&&beat%2===1)tone(midiHz(lead+sectionShift+12),track.step*.34,'square',Math.min(.011,.004+hero.hits*.0004),'music',0);
+  if(hero.hp/hero.maxHp<.2&&beat%8===0){tone(62,.08,'triangle',.022,'music',1);setTimeout(()=>tone(56,.07,'triangle',.014,'music',1),95)}
+  state.musicNext=state.time+track.step*speed
+}
 function playVictorySting(rank){const grade=rank?.[0]||'C',notes={C:[48,55,60],B:[55,62,67,71],A:[60,64,67,72,76],S:[60,67,72,76,79,84]}[grade];duckMusic(.18,1.25);notes.forEach((note,index)=>setTimeout(()=>{tone(midiHz(note),.24,index===notes.length-1?'sawtooth':'square',index===notes.length-1?.05:.032,'sfx',4);if(index===notes.length-1)chipNoise(.025,.12,700)},index*105))}
 function playDefeatSting(){duckMusic(.12,.85);[52,47,40].forEach((note,index)=>setTimeout(()=>tone(midiHz(note),.3,'sawtooth',.04,'sfx',4),index*145))}
-function playRouteSting(){duckMusic(.42,.48);[48,55,60].forEach((note,index)=>setTimeout(()=>tone(midiHz(note+state.level),.13,index===2?'sawtooth':'square',.025,'sfx',2),index*75))}
+function playRouteSting(){duckMusic(.34,.62);const root=48+state.level+state.scene*2;[root,root+7,root+12,root+16,root+19].forEach((note,index)=>setTimeout(()=>{tone(midiHz(note),index===4?.22:.12,index>=3?'sawtooth':'square',index===4?.038:.025,'sfx',2);if(index===0||index===3)tone(midiHz(note-12),.2,'triangle',.018,'sfx',2)},index*68))}
 function playShopMotif(){if(shopMusicActive||!audio||state.muted||profile.music===false)return;shopMusicActive=true;const notes=[60,64,67,72,67,64,62,65,69,74,69,65,60,64,67,72];notes.forEach((note,i)=>setTimeout(()=>{if(!shopMusicActive)return;tone(midiHz(note),.22,'triangle',.012,'music');if(i%4===0)tone(midiHz(note-12),.38,'square',.006,'music')},i*190))}
 const SHOP={damage:{name:'CHAIN TEETH',prices:[5,10,18],effect:'+8% damage'},meter:{name:'FREE-MARKET FLYWHEEL',prices:[6,12,20],effect:'+10% LIBERTAD gain'},health:{name:'FISCAL RESPONSIBILITY',prices:[6,12,20],effect:'+10 max health'},dodge:{name:'DEREGULATED DODGE',prices:[5,11],effect:'+2 invulnerability frames'},magnet:{name:'SOUND MONEY MAGNET',prices:[4,8,14],effect:'+38px pull range'},speed:{name:'CAPITAL MOBILITY',prices:[5,10],effect:'+6% movement speed'},heavy:{name:'CREATIVE DESTRUCTION',prices:[9,18],effect:'Heavy armor break / shockwave'},interest:{name:'COMPOUND INTEREST',prices:[8,16],effect:'+10% shop-entry dollars'}};
 function shopTierValue(key,tier){return {damage:`${100+tier*8}% damage`,meter:`${100+tier*10}% meter`,health:`${100+tier*10} max HP`,dodge:`+${tier*2} dodge frames`,magnet:`${90+tier*38}px pull`,speed:`${100+tier*6}% speed`,heavy:['standard heavy','armor break','break + shockwave'][tier],interest:`${tier*10}% interest`}[key]}
@@ -252,7 +274,7 @@ function showTip(key,text){if(seenTips.has(key))return;seenTips.add(key);const m
 function reset(level=state.level,resume=null){
   state.runId++;
   state.defeats=[];
-  const levelNames={1:'CALLE CORRIENTES · 1951',2:'MINISTRY OF BUREAUCRACY · 1935',3:'UNIVERSITY OF MARX · 1968',4:'KREMLIN REACTOR · 1952'};Object.assign(state,{running:true,paused:false,level,time:resume?.time||0,hitStop:0,camera:0,finishFlash:0,wave:resume?.wave||0,wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0,scene:resume?.scene||0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,score:resume?.score||0,multiplier:1,pesos:resume?.pesos||0,meter:0,meterReady:false,bankAward:0,missionRank:'C RANK',newBest:false,resultRecord:null,shake:0,banner:resume?'CHECKPOINT':levelNames[level],bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],pickups:[],particles:[],projectiles:[],popups:[],props:[],hazards:[],stats:resume?(resume.stats||state.stats):freshStats(),perf:freshPerf(),resultsShown:false,boss:false,victory:false});
+  const levelNames={1:'CALLE CORRIENTES · 1951',2:'MINISTRY OF BUREAUCRACY · 1935',3:'UNIVERSITY OF MARX · 1968',4:'KREMLIN REACTOR · 1952'};Object.assign(state,{running:true,paused:false,level,time:resume?.time||0,hitStop:0,camera:0,finishFlash:0,wave:resume?.wave||0,wavePending:false,waveDelay:0,waveStartTime:0,waveStartHp:100,waveStartDodges:0,waveMaxCombo:0,waveObjective:null,waveGrade:'',waveGradeTime:0,tip:'',tipSource:'',tipTime:0,heartbeatNext:0,scene:resume?.scene||0,sceneFade:0,phaseFlash:0,musicNext:0,musicNote:0,musicBoss:false,musicScene:-1,score:resume?.score||0,multiplier:1,pesos:resume?.pesos||0,meter:0,meterReady:false,bankAward:0,missionRank:'C RANK',newBest:false,resultRecord:null,shake:0,banner:resume?'CHECKPOINT':levelNames[level],bannerTime:3,bossQuote:'',bossQuoteTime:0,bossMove:'',bossMoveTime:0,enemies:[],pickups:[],particles:[],projectiles:[],popups:[],props:[],hazards:[],stats:resume?(resume.stats||state.stats):freshStats(),perf:freshPerf(),resultsShown:false,boss:false,victory:false});
   state.bossFinish=null;state.waveIntel='';state.waveIntelTime=0;
   state.stats.objectivesCompleted=Number(state.stats.objectivesCompleted)||0;state.stats.objectivesOffered=Number(state.stats.objectivesOffered)||0;
   state.stats.pesosLost=Number(state.stats.pesosLost)||0;state.stats.soundMoneyPickups=Number(state.stats.soundMoneyPickups)||0;
